@@ -119,26 +119,36 @@ fun ShoppingCartItem(
                             else MaterialTheme.typography.bodyMedium
                         )
                         Spacer(modifier = Modifier.height(6.dp))
-                        AnimatedVisibility(
-                            expanded.not()
-                        ) {
+                        if (onRemove == null || onQuantityChange == null) {
                             Text(
                                 stringResource(R.string.quantity, product?.quantity ?: ONE_INT),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
+                        } else {
+                            AnimatedVisibility(
+                                expanded.not()
+                            ) {
+                                Text(
+                                    stringResource(R.string.quantity, product?.quantity ?: ONE_INT),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
                         }
                     }
                 }
 
                 if (!isLoading) {
-                    IconButton(onClick = { expanded = !expanded }) {
-                        Icon(
-                            imageVector = if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
-                            contentDescription = if (expanded) stringResource(R.string.close_quantity_controls) else stringResource(
-                                R.string.open_quantity_controls
+                    if (onRemove != null || onQuantityChange != null) {
+                        IconButton(onClick = { expanded = !expanded }) {
+                            Icon(
+                                imageVector = if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
+                                contentDescription = if (expanded) stringResource(R.string.close_quantity_controls) else stringResource(
+                                    R.string.open_quantity_controls
+                                )
                             )
-                        )
+                        }
                     }
                 } else {
                     Box(
@@ -152,26 +162,30 @@ fun ShoppingCartItem(
                 }
             }
 
-            AnimatedVisibility(
-                expanded
-            ) {
-                Row {
-                    onRemove?.let {
-                        IconButton(
-                            onClick = { onRemove() },
-                            modifier = Modifier.align(Alignment.CenterVertically)
-                        ) {
-                            Icon(
-                                Icons.Default.Delete,
-                                contentDescription = stringResource(R.string.delete_selected)
+            if (onRemove != null || onQuantityChange != null) {
+                AnimatedVisibility(
+                    expanded
+                ) {
+                    Row {
+                        onRemove?.let {
+                            IconButton(
+                                onClick = { onRemove() },
+                                modifier = Modifier.align(Alignment.CenterVertically)
+                            ) {
+                                Icon(
+                                    Icons.Default.Delete,
+                                    contentDescription = stringResource(R.string.delete_selected)
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.weight(1f))
+                        onQuantityChange?.let {
+                            QuantityControls(
+                                onQuantityChange = onQuantityChange,
+                                product = product
                             )
                         }
                     }
-                    Spacer(modifier = Modifier.weight(1f))
-                    QuantityControls(
-                        onQuantityChange = onQuantityChange,
-                        product = product
-                    )
                 }
             }
         }
@@ -180,45 +194,41 @@ fun ShoppingCartItem(
 
 @Composable
 private fun QuantityControls(
-    onQuantityChange: ((Int) -> Unit)? = null,
+    onQuantityChange: (Int) -> Unit,
     product: Product? = null
 ) {
-    Row(
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        product?.let { prod ->
-            onQuantityChange?.let {
-
-                IconButton(
-                    enabled = product.quantity > ONE_INT,
-                    onClick = {
-                        if (product.quantity > ONE_INT)
-                            onQuantityChange.invoke(product.quantity - ONE_INT)
+    product?.let { prod ->
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(
+                enabled = product.quantity > ONE_INT,
+                onClick = {
+                    if (product.quantity > ONE_INT) {
+                        onQuantityChange.invoke(product.quantity - ONE_INT)
                     }
-                ) {
-                    Icon(
-                        painterResource(R.drawable.ic_remove),
-                        contentDescription = stringResource(R.string.decrease_quantity)
-                    )
                 }
+            ) {
+                Icon(
+                    painterResource(R.drawable.ic_remove),
+                    contentDescription = stringResource(R.string.decrease_quantity)
+                )
             }
 
             Text(
-                text = "${prod.quantity}",
+                text = prod.quantity.toString(),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
 
-            onQuantityChange?.let {
-                IconButton(
-                    onClick = { onQuantityChange(prod.quantity + ONE_INT) }
-                ) {
-                    Icon(
-                        Icons.Filled.Add,
-                        contentDescription = stringResource(R.string.increase_quantity)
-                    )
-                }
+            IconButton(
+                onClick = { onQuantityChange.invoke(prod.quantity + ONE_INT) }
+            ) {
+                Icon(
+                    Icons.Filled.Add,
+                    contentDescription = stringResource(R.string.increase_quantity)
+                )
             }
         }
     }
