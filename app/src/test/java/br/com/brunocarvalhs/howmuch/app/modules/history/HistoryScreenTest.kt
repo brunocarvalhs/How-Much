@@ -25,12 +25,12 @@ class HistoryScreenTest {
         }
 
         // Verifica se o filtro "Todos" está presente
-        composeTestRule.onNodeWithText("Todos")
+        composeTestRule.onNodeWithText("All")
             .assertExists()
             .performClick()
 
         // Verifica se o filtro "Últimos 7 dias" está presente
-        composeTestRule.onNodeWithText("Últimos 7 dias")
+        composeTestRule.onNodeWithText("Last 7 days")
             .assertExists()
     }
 }
