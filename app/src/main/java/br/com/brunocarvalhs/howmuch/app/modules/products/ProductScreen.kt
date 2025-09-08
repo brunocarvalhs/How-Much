@@ -64,7 +64,6 @@ fun ProductFormScreen(
 @Composable
 fun ProductFormBottomSheet(
     shoppingCartId: String?,
-    navController: NavController,
     onDismiss: () -> Unit,
     viewModel: ProductViewModel = hiltViewModel()
 ) {

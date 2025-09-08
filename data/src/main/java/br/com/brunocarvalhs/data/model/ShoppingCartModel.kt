@@ -1,6 +1,8 @@
 package br.com.brunocarvalhs.data.model
 
 import android.os.Build
+import br.com.brunocarvalhs.data.constants.EMPTY_LONG
+import br.com.brunocarvalhs.data.constants.EMPTY_STRING
 import br.com.brunocarvalhs.data.extensions.randomToken
 import br.com.brunocarvalhs.domain.entities.Product
 import br.com.brunocarvalhs.domain.entities.ShoppingCart
@@ -13,9 +15,8 @@ data class ShoppingCartModel(
     override val id: String = UUID.randomUUID().toString(),
     override val token: String = randomToken(),
     val items: MutableList<ProductModel> = mutableListOf(),
-    override val name: String = "",
-    override val market: String = "",
-    override val totalPrice: Long = 0L,
+    override val market: String = EMPTY_STRING,
+    override val totalPrice: Long = EMPTY_LONG,
     override val purchaseDate: String? = null,
 ) : ShoppingCart {
 
@@ -39,7 +40,7 @@ data class ShoppingCartModel(
         products.replaceAll { if (it.id == product.id) product.toProductModel() else it }
     }
 
-    override fun finalizePurchase(name: String, market: String, price: Long): ShoppingCart {
+    override fun finalizePurchase(market: String, price: Long): ShoppingCart {
         val today = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ISO_DATE)
         } else {
@@ -47,7 +48,6 @@ data class ShoppingCartModel(
         }
 
         return this.copy(
-            name = name,
             market = market,
             purchaseDate = today,
             totalPrice = price
@@ -81,7 +81,6 @@ internal fun ShoppingCart.toShoppingCartModel(): ShoppingCartModel =
         id = this.id,
         token = this.token,
         items = this.products.map { it.toProductModel() }.toMutableList(),
-        name = this.name,
         market = this.market,
         totalPrice = this.totalPrice,
         purchaseDate = this.purchaseDate

@@ -10,7 +10,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import br.com.brunocarvalhs.howmuch.app.foundation.constants.ONE_INT
-import br.com.brunocarvalhs.howmuch.app.foundation.constants.THREE_INT
 import br.com.brunocarvalhs.howmuch.app.foundation.constants.TWO_INT
 import br.com.brunocarvalhs.howmuch.app.foundation.constants.ZERO_INT
 import br.com.brunocarvalhs.howmuch.app.modules.shoppingCart.ShoppingCartUiState
@@ -23,7 +22,7 @@ fun ShoppingCartCardsPager(
 ) {
     val pagerState = rememberPagerState(
         initialPage = ZERO_INT,
-        pageCount = { THREE_INT }
+        pageCount = { TWO_INT }
     )
 
     HorizontalPager(
@@ -45,11 +44,6 @@ fun ShoppingCartCardsPager(
 
             ONE_INT -> ShoppingCartLimitCard(
                 totalSpent = uiState.totalPrice,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            TWO_INT -> ShoppingCartSavingsCard(
-                amountSaved = uiState.amountSaved,
                 modifier = Modifier.fillMaxWidth()
             )
         }

@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">How Much</string>
     <string name="nav_bar_home">Home</string>
@@ -21,20 +22,20 @@
     <string name="checkout_cart">Checkout cart</string>
     <string name="market_name">Market name</string>
     <string name="price_paid">Price paid</string>
-    <string name="message_error_field_required_finaliza_purchase">All fields are required and price must be greater than zero</string>
+    <string name="message_error_field_required_finaliza_purchase">All fields are required and the price must be greater than zero</string>
     <string name="confirm">Confirm</string>
     <string name="cancel">Cancel</string>
     <string name="share">Share</string>
     <string name="checkout">Checkout</string>
     <string name="quantity">Quantity: %1$d</string>
     <string name="cart_summary">Cart summary</string>
-    <string name="shopping_cart_icon">Shopping Cart Icon</string>
+    <string name="shopping_cart_icon">Shopping cart icon</string>
     <string name="close_quantity_controls">Close quantity controls</string>
     <string name="open_quantity_controls">Open quantity controls</string>
     <string name="spending_limit">Spending limit</string>
-    <string name="total_money_spent">Total spent: $ %1$s</string>
-    <string name="limit">Limit: $ %1$s</string>
-    <string name="savings_icon">Savings Icon</string>
+    <string name="total_money_spent">Total spent:</string>
+    <string name="limit">Limit:</string>
+    <string name="savings_icon">Savings icon</string>
     <string name="you_economized">You saved</string>
     <string name="enter_the_digit_code">Enter the %1$d-digit code</string>
     <string name="send">Send</string>
@@ -52,5 +53,9 @@
     <string name="history">History</string>
     <string name="rate_on_google_play">Rate on Google Play</string>
     <string name="menu">Menu</string>
-    <string name="access">access</string>
+    <string name="access">Access</string>
+    <string name="edit_limit">Edit limit</string>
+    <string name="save">Save</string>
+    <string name="set_cart_limit">Set cart limit</string>
+    <string name="limit_text">Limit</string>
 </resources>

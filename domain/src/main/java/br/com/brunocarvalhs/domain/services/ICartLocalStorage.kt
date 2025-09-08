@@ -9,4 +9,5 @@ interface ICartLocalStorage {
     suspend fun getCartNow(): ShoppingCart?
 
     suspend fun saveCartNow(cart: ShoppingCart)
+    suspend fun removeCartHistory(cart: ShoppingCart)
 }

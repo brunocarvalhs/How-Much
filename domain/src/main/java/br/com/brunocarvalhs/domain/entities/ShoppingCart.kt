@@ -2,7 +2,6 @@ package br.com.brunocarvalhs.domain.entities
 
 interface ShoppingCart {
     val id: String
-    val name: String
     val market: String
 
     val totalPrice: Long
@@ -15,7 +14,6 @@ interface ShoppingCart {
     fun removeProduct(productId: String): ShoppingCart
 
     fun finalizePurchase(
-        name: String = this.name,
         market: String = this.market,
         price: Long = this.totalPrice
     ): ShoppingCart

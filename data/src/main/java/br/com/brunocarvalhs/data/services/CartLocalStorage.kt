@@ -44,6 +44,17 @@ class CartLocalStorage @Inject constructor(
         )
     }
 
+    override suspend fun removeCartHistory(cart: ShoppingCart) {
+        val existingHistory: MutableList<ShoppingCartModel> =
+            dataStorageService.getValue(CART_HISTORY_KEY, Array<ShoppingCartModel>::class.java)
+                ?.toMutableList() ?: mutableListOf()
+
+        val cartModel = cart.toShoppingCartModel()
+
+        existingHistory.remove(cartModel)
+        dataStorageService.saveValue(CART_HISTORY_KEY, existingHistory, List::class.java)
+    }
+
     companion object {
         const val CART_HISTORY_KEY = "cart_history"
 

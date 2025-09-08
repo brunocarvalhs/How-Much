@@ -78,61 +78,46 @@ fun ShoppingCartScreen(
         onIntent = viewModel::onIntent,
         onAddToCart = { showProductSheet = true },
         onShared = { showShareSheet = true },
-        onCheckout = { showFinalizeDialog = true }
+        onCheckout = { showFinalizeDialog = true },
+        onShareList = {
+            context.shareText(
+                subject = context.getString(R.string.share_shopping_cart),
+                text = viewModel.shareCart()
+            )
+            showShareSheet = false
+        },
+        onShareToken = {
+            context.shareText(
+                subject = context.getString(R.string.share_cart_token),
+                text = viewModel.shareCartToken()
+            )
+            showShareSheet = false
+        },
+        showProductSheet = showProductSheet,
+        showShareSheet = showShareSheet,
+        showFinalizeDialog = showFinalizeDialog,
+        setShowProductSheet = { showProductSheet = it },
+        setShowShareSheet = { showShareSheet = it },
+        setShowFinalizeDialog = { showFinalizeDialog = it }
     )
-
-    if (showProductSheet && uiState.id != null) {
-        ProductFormBottomSheet(
-            shoppingCartId = uiState.id,
-            navController = navController,
-            onDismiss = { showProductSheet = false }
-        )
-    }
-
-    if (showShareSheet) {
-        ShareCartBottomSheet(
-            token = uiState.token,
-            onShareList = {
-                context.shareText(
-                    subject = context.getString(R.string.share_shopping_cart),
-                    text = viewModel.shareCart()
-                )
-                showShareSheet = false
-            },
-            onShareToken = {
-                context.shareText(
-                    subject = context.getString(R.string.share_cart_token),
-                    text = viewModel.shareCartToken()
-                )
-                showShareSheet = false
-            },
-            onDismiss = { showShareSheet = false }
-        )
-    }
-
-    if (showFinalizeDialog) {
-        FinalizePurchaseDialog(
-            onDismiss = { showFinalizeDialog = false },
-            onSubmit = { name, price ->
-                viewModel.onIntent(
-                    intent = ShoppingCartUiIntent.FinalizePurchase(
-                        market = name,
-                        totalPrice = price
-                    )
-                )
-            }
-        )
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ShoppingCartContent(
+fun ShoppingCartContent(
     uiState: ShoppingCartUiState,
     onIntent: (ShoppingCartUiIntent) -> Unit,
     onAddToCart: () -> Unit = {},
     onShared: () -> Unit = {},
     onCheckout: () -> Unit = {},
+    onShareList: () -> Unit,
+    onShareToken: () -> Unit,
+    showProductSheet: Boolean,
+    showShareSheet: Boolean,
+    showFinalizeDialog: Boolean,
+    setShowProductSheet: (Boolean) -> Unit,
+    setShowShareSheet: (Boolean) -> Unit,
+    setShowFinalizeDialog: (Boolean) -> Unit
 ) {
     var showTokenSheet by remember { mutableStateOf(false) }
     val listState = rememberLazyListState()
@@ -205,6 +190,36 @@ private fun ShoppingCartContent(
         onDismiss = { showTokenSheet = false },
         onSubmit = { code -> onIntent(ShoppingCartUiIntent.SearchByToken(code)) }
     )
+
+    if (showProductSheet && uiState.id != null) {
+        ProductFormBottomSheet(
+            shoppingCartId = uiState.id,
+            onDismiss = { setShowProductSheet(false) }
+        )
+    }
+
+    if (showShareSheet) {
+        ShareCartBottomSheet(
+            token = uiState.token,
+            onShareList = onShareList,
+            onShareToken = onShareToken,
+            onDismiss = { setShowShareSheet(false) }
+        )
+    }
+
+    if (showFinalizeDialog) {
+        FinalizePurchaseDialog(
+            onDismiss = { setShowFinalizeDialog(false) },
+            onSubmit = { name, price ->
+                onIntent.invoke(
+                    ShoppingCartUiIntent.FinalizePurchase(
+                        market = name,
+                        totalPrice = price
+                    )
+                )
+            }
+        )
+    }
 }
 
 @Composable
@@ -212,6 +227,17 @@ private fun ShoppingCartContent(
 private fun ShoppingCartContentPreview() {
     ShoppingCartContent(
         uiState = ShoppingCartUiState(),
-        onIntent = {}
+        onIntent = {},
+        onAddToCart = {},
+        onShared = {},
+        onCheckout = {},
+        onShareList = {},
+        onShareToken = {},
+        showProductSheet = false,
+        showShareSheet = false,
+        showFinalizeDialog = false,
+        setShowProductSheet = {},
+        setShowShareSheet = {},
+        setShowFinalizeDialog = {}
     )
 }

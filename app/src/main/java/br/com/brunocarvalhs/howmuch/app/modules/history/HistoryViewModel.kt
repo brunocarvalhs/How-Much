@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.com.brunocarvalhs.domain.entities.ShoppingCart
+import br.com.brunocarvalhs.domain.useCases.DeleteCartOfHistoryUseCase
 import br.com.brunocarvalhs.domain.useCases.GetHistoryCartUseCase
 import br.com.brunocarvalhs.howmuch.app.foundation.extensions.DateFormat
 import br.com.brunocarvalhs.howmuch.app.foundation.extensions.shareText
@@ -22,7 +23,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HistoryViewModel @Inject constructor(
-    private val getHistoryUseCase: GetHistoryCartUseCase
+    private val getHistoryUseCase: GetHistoryCartUseCase,
+    private val deleteCartOfHistoryUseCase: DeleteCartOfHistoryUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HistoryUiState())
@@ -41,9 +43,16 @@ class HistoryViewModel @Inject constructor(
     }
 
     private fun deleteSelected(list: List<ShoppingCart>) {
-        val currentList = _uiState.value.historyItems.toMutableList()
-        currentList.removeAll(list)
-        _uiState.value = _uiState.value.copy(historyItems = currentList)
+        viewModelScope.launch(Dispatchers.IO) {
+            deleteCartOfHistoryUseCase(list)
+                .onSuccess {
+                    val currentHistory = _uiState.value.historyItems.toMutableList()
+                    currentHistory.removeAll(list)
+                    _uiState.value = _uiState.value.copy(historyItems = currentHistory)
+                }.onFailure {
+                    _uiEffect.emit(HistoryUiEffect.ShowError(it.message.orEmpty()))
+                }
+        }
     }
 
     private fun loadHistory() {
@@ -58,7 +67,14 @@ class HistoryViewModel @Inject constructor(
     }
 
     private fun clearHistory() {
-        _uiState.value = _uiState.value.copy(historyItems = emptyList())
+        viewModelScope.launch(Dispatchers.IO) {
+            deleteCartOfHistoryUseCase(_uiState.value.historyItems)
+                .onSuccess {
+                    _uiState.value = _uiState.value.copy(historyItems = emptyList())
+                }.onFailure {
+                    _uiEffect.emit(HistoryUiEffect.ShowError(it.message.orEmpty()))
+                }
+        }
     }
 
     fun sharedCart(context: Context, cart: ShoppingCart) {

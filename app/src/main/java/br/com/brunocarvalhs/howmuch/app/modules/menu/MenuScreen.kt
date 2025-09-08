@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import br.com.brunocarvalhs.howmuch.BuildConfig
 import br.com.brunocarvalhs.howmuch.R
@@ -41,6 +42,20 @@ fun MenuScreen() {
         },
     )
 
+    MenuContent(
+        services = services,
+        version = version,
+        isDebug = isDebug
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MenuContent(
+    services: List<ServiceItem>,
+    version: String,
+    isDebug: Boolean,
+) {
     Scaffold(
         topBar = {
             LargeTopAppBar(
@@ -86,4 +101,20 @@ fun MenuScreen() {
             }
         }
     }
+}
+
+@Composable
+@Preview
+private fun MenuContentPreview() {
+    val services = listOf(
+        ServiceItem(R.string.rate_on_google_play) {},
+        ServiceItem(R.string.rate_on_google_play) {},
+        ServiceItem(R.string.rate_on_google_play) {},
+    )
+
+    MenuContent(
+        services = services,
+        version = "1.0.0",
+        isDebug = true
+    )
 }
