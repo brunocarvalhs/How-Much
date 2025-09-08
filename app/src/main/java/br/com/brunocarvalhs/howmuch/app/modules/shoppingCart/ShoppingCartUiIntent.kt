@@ -1,0 +1,11 @@
+package br.com.brunocarvalhs.howmuch.app.modules.shoppingCart
+
+sealed interface ShoppingCartUiIntent {
+    object AddProduct : ShoppingCartUiIntent
+    data class SearchByToken(val token: String) : ShoppingCartUiIntent
+    data class RemoveItem(val productId: String) : ShoppingCartUiIntent
+    data class UpdateQuantity(val productId: String, val quantity: Int) : ShoppingCartUiIntent
+    data class SharedCart(val token: String?) : ShoppingCartUiIntent
+    object Retry : ShoppingCartUiIntent
+    data class FinalizePurchase(val market: String, val totalPrice: Long) : ShoppingCartUiIntent
+}

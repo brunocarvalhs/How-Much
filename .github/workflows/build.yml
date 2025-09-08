@@ -1,0 +1,141 @@
+name: Build Application Debug
+
+on:
+  push:
+    branches: [ develop ]
+
+env:
+  # Configurações Gerais
+  ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+  JDK_VERSION: 17
+  GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.jvmargs=-Xmx3072m"
+
+  # Android
+  BUILD_TOOLS_VERSION: "34.0.0"
+  ANDROID_LOCAL_PROPERTIES: local.properties
+
+  # Projeto
+  APP_NAME: "HowMuch"
+
+  # Caminhos
+  APK_DEBUG_PATH: app/build/outputs/apk/debug/*.apk
+  APK_RELEASE_PATH: app/build/outputs/apk/release/*.apk
+
+  # 🔑 Secrets (configurados no repo)
+  GOOGLE_SERVICE_JSON: ${{ secrets.GOOGLE_SERVICE_JSON }}
+  FIREBASE_AUTH_TOKEN: ${{ secrets.FIREBASE_AUTH_TOKEN }}
+  FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+
+jobs:
+  checkout-and-setup:
+    runs-on: ubuntu-24.04
+    name: Checkout and Setup Environment
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: ${{ env.JDK_VERSION }}
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v2
+
+      - name: Create local.properties
+        run: |
+          echo "sdk.dir=${{ env.ANDROID_HOME }}" > ${{ env.ANDROID_LOCAL_PROPERTIES }}
+
+      - name: Create google-services.json
+        run: |
+          echo ${{ env.GOOGLE_SERVICE_JSON }} | base64 --decode > app/google-services.json
+
+      - name: Cache Gradle
+        uses: actions/cache@v3
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Upload Workspace
+        uses: actions/upload-artifact@v4
+        with:
+          name: workspace
+          path: ./
+
+  unit-tests:
+    runs-on: ubuntu-24.04
+    name: Run Unit Tests
+    needs: checkout-and-setup
+    steps:
+      - name: Download Workspace
+        uses: actions/download-artifact@v4
+        with:
+          name: workspace
+
+      - name: Give execution permissions to gradlew
+        run: chmod +x gradlew
+
+      - name: Run Unit Tests
+        run: ./gradlew testDebug
+
+  lint-check:
+    runs-on: ubuntu-24.04
+    name: Run Lint Check
+    needs: checkout-and-setup
+    steps:
+      - name: Download Workspace
+        uses: actions/download-artifact@v4
+        with:
+          name: workspace
+
+      - name: Give execution permissions to gradlew
+        run: chmod +x gradlew
+
+      - name: Run Lint
+        run: ./gradlew lintDebug
+
+  build:
+    runs-on: ubuntu-24.04
+    name: Build
+    needs: [unit-tests, lint-check]
+    steps:
+      - name: Download Workspace
+        uses: actions/download-artifact@v4
+        with:
+          name: workspace
+
+      - name: Give execution permissions to gradlew
+        run: chmod +x gradlew
+
+      - name: Build APK Debug
+        run: ./gradlew assembleDebug
+
+      - name: Upload Debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.APP_NAME }}-apk-debug
+          path: ${{ env.APK_DEBUG_PATH }}
+
+  deploy-firebase:
+    runs-on: ubuntu-24.04
+    name: Deploy to Firebase App Distribution
+    needs: [build]
+    steps:
+      - name: Download APK Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.APP_NAME }}-apk-debug
+          path: app/build/outputs/apk/release/
+
+      - name: Install Firebase CLI
+        run: curl -sL https://firebase.tools | bash
+
+      - name: Upload APK to Firebase App Distribution
+        run: |
+          firebase appdistribution:distribute ${{ env.APK_RELEASE_PATH }} \
+            --app "${{ env.FIREBASE_APP_ID }}" \
+            --release-notes "release automatica" \
+            --token "${{ env.FIREBASE_AUTH_TOKEN }}"

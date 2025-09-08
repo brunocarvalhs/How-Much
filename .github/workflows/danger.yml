@@ -1,0 +1,51 @@
+name: Danger
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+    branches:
+      - develop
+      - master
+
+env:
+  # Versões
+  NODE_VERSION: 16
+
+  # 🔑 Secrets
+  GITHUB_TOKEN: ${{ secrets.TOKEN }}
+
+jobs:
+  danger:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        run: npm install -g danger conventional-changelog
+
+      - name: Run Danger
+        run: danger ci --dangerfile .github/danger/dangerfile.js
+        env:
+          GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
+
+      - name: Install GitHub CLI
+        run: sudo apt-get install gh
+
+      - name: Approve PR
+        if: success() && !failure()
+        run: |
+          if [[ "${{ github.actor }}" == "${{ github.event.pull_request.user.login }}" ]]; then
+            echo "Você não pode aprovar seu próprio PR. Por favor, peça a um revisor para aprovar."
+          else
+            echo "Aprovação automática do PR"
+            gh pr review "${{ github.event.pull_request.number }}" --approve --body "Aprovado automaticamente pelo DangerJS."
+          fi
+        env:
+          GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
