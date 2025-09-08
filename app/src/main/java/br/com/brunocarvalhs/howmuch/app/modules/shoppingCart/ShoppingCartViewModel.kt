@@ -126,7 +126,7 @@ class ShoppingCartViewModel @Inject constructor(
                 val updatedCart = cart.toCopy(products = currentProducts)
                 try {
                     updateShoppingCartUseCase(updatedCart)
-                    updateUiState(products = currentProducts, isLoading = true)
+                    updateUiState(products = currentProducts)
                 } catch (_: Exception) {
                     emitEffect(ShoppingCartUiEffect.ShowError("Failed to remove product"))
                 }
@@ -176,7 +176,9 @@ class ShoppingCartViewModel @Inject constructor(
         isLoading: Boolean = false
     ) {
         val updatedProducts = products ?: _uiState.value.products
-        val updatedTotalPrice = totalPrice ?: updatedProducts.sumOf { it.price * it.quantity }
+        val updatedTotalPrice = totalPrice ?: run {
+            updatedProducts.sumOf { it.price * it.quantity }
+        }
 
         _uiState.value = _uiState.value.copy(
             isLoading = isLoading,

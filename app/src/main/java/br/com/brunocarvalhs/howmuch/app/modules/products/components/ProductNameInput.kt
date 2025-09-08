@@ -19,13 +19,42 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import br.com.brunocarvalhs.howmuch.R
 import br.com.brunocarvalhs.howmuch.app.foundation.constants.EMPTY_STRING
+import br.com.brunocarvalhs.howmuch.app.foundation.constants.marketItems
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductNameInput(
     name: String,
     onNameChange: (String) -> Unit,
-    suggestions: List<String>,
+    modifier: Modifier = Modifier
+) {
+    OutlinedTextField(
+        value = name,
+        onValueChange = { onNameChange(it) },
+        label = { Text(stringResource(R.string.product_name)) },
+        singleLine = true,
+        trailingIcon = {
+            if (name.isNotEmpty()) {
+                IconButton(onClick = { onNameChange(EMPTY_STRING) }) {
+                    Icon(
+                        imageVector = Icons.Default.Clear,
+                        contentDescription = stringResource(R.string.clean)
+                    )
+                }
+            }
+        },
+        modifier = modifier
+    )
+}
+
+/**
+ * Campo de nome do produto com sugestões
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ProductNameInputWithSuggestions(
+    name: String,
+    onNameChange: (String) -> Unit,
+    suggestions: List<String> = marketItems,
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -37,25 +66,10 @@ fun ProductNameInput(
         expanded = expanded,
         onExpandedChange = { expanded = !expanded }
     ) {
-        OutlinedTextField(
-            value = name,
-            onValueChange = { input ->
-                onNameChange(input)
-                expanded = filteredSuggestions.isNotEmpty()
-            },
-            label = { Text(stringResource(R.string.product_name)) },
-            singleLine = true,
-            trailingIcon = {
-                if (name.isNotEmpty()) {
-                    IconButton(onClick = { onNameChange(EMPTY_STRING) }) {
-                        Icon(imageVector = Icons.Default.Clear, contentDescription = stringResource(
-                            R.string.clean
-                        ))
-                    }
-                }
-            },
-            modifier = modifier
-                .menuAnchor(type = PrimaryEditable, enabled = true)
+        ProductNameInput(
+            name = name,
+            onNameChange = onNameChange,
+            modifier = modifier.menuAnchor(type = PrimaryEditable, enabled = true)
         )
 
         ExposedDropdownMenu(

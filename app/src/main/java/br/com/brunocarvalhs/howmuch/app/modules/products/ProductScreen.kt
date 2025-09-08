@@ -1,16 +1,36 @@
 package br.com.brunocarvalhs.howmuch.app.modules.products
 
 import android.widget.Toast
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -19,7 +39,6 @@ import br.com.brunocarvalhs.howmuch.R
 import br.com.brunocarvalhs.howmuch.app.foundation.constants.EMPTY_LONG
 import br.com.brunocarvalhs.howmuch.app.foundation.constants.EMPTY_STRING
 import br.com.brunocarvalhs.howmuch.app.foundation.constants.ONE_INT
-import br.com.brunocarvalhs.howmuch.app.foundation.constants.marketItems
 import br.com.brunocarvalhs.howmuch.app.modules.products.components.PriceInput
 import br.com.brunocarvalhs.howmuch.app.modules.products.components.ProductNameInput
 import br.com.brunocarvalhs.howmuch.app.modules.products.components.QuantitySelector
@@ -162,21 +181,33 @@ private fun ProductContent(
             ProductNameInput(
                 name = name,
                 onNameChange = { name = it },
-                suggestions = marketItems,
-                modifier = Modifier.focusRequester(nameFocusRequester)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(nameFocusRequester)
             )
 
             PriceInput(
                 price = price,
                 onPriceChange = { newPrice -> price = newPrice },
-                modifier = Modifier.focusRequester(priceFocusRequester)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(priceFocusRequester)
             )
 
             QuantitySelector(
                 quantity = quantity,
-                onQuantityChange = { quantity = it }
+                onQuantityChange = { quantity = it },
+                modifier = Modifier.fillMaxWidth()
             )
         }
     }
 }
 
+@Composable
+@Preview
+fun ProductContentPreview() {
+    ProductContent(
+        uiState = ProductUiState(),
+        onIntent = {}
+    )
+}

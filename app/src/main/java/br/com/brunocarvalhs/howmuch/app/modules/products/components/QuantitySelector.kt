@@ -2,6 +2,7 @@ package br.com.brunocarvalhs.howmuch.app.modules.products.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -17,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -34,58 +36,54 @@ fun QuantitySelector(
 ) {
     var textValue by remember { mutableStateOf(quantity.toString()) }
 
-    Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        IconButton(
-            onClick = {
-                if (quantity > ONE_INT) {
-                    onQuantityChange(quantity - ONE_INT)
-                    textValue = (quantity - ONE_INT).toString()
-                }
-            },
-            enabled = quantity > ONE_INT
-        ) {
-            Icon(
-                imageVector = Icons.Default.Delete,
-                contentDescription = stringResource(R.string.decrease_quantity)
-            )
-        }
-
-        OutlinedTextField(
-            value = textValue,
-            onValueChange = { newValue ->
-                val num = newValue.toIntOrNull()
-                if (num != null && num >= ONE_INT) {
-                    textValue = num.toString()
-                    onQuantityChange(num)
-                } else if (newValue.isEmpty()) {
-                    textValue = EMPTY_STRING
-                }
-            },
-            singleLine = true,
-            textStyle = androidx.compose.ui.text.TextStyle(
-                textAlign = TextAlign.Center
-            ),
-            modifier = Modifier.width(80.dp),
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Number,
-                imeAction = ImeAction.Done
-            )
-        )
-
-        IconButton(
-            onClick = {
-                onQuantityChange(quantity + ONE_INT)
-                textValue = (quantity + ONE_INT).toString()
+    OutlinedTextField(
+        value = textValue,
+        onValueChange = { newValue ->
+            val num = newValue.toIntOrNull()
+            if (num != null && num >= ONE_INT) {
+                textValue = num.toString()
+                onQuantityChange(num)
+            } else if (newValue.isEmpty()) {
+                textValue = EMPTY_STRING
             }
-        ) {
-            Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = stringResource(R.string.increase_quantity)
-            )
+        },
+        singleLine = true,
+        textStyle = androidx.compose.ui.text.TextStyle(
+            textAlign = TextAlign.Center
+        ),
+        modifier = modifier.fillMaxWidth(),
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Number,
+            imeAction = ImeAction.Done
+        ),
+        prefix = {
+            IconButton(
+                onClick = {
+                    if (quantity > ONE_INT) {
+                        onQuantityChange(quantity - ONE_INT)
+                        textValue = (quantity - ONE_INT).toString()
+                    }
+                },
+                enabled = quantity > ONE_INT
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_remove),
+                    contentDescription = stringResource(R.string.decrease_quantity),
+                )
+            }
+        },
+        suffix = {
+            IconButton(
+                onClick = {
+                    onQuantityChange(quantity + ONE_INT)
+                    textValue = (quantity + ONE_INT).toString()
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = stringResource(R.string.increase_quantity),
+                )
+            }
         }
-    }
+    )
 }
