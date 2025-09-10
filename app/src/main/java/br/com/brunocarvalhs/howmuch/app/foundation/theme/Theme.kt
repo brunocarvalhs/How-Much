@@ -11,10 +11,33 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = Green80,       // CTA: finalizar compra
+    secondary = BlueGrey80,  // ações secundárias
+    tertiary = Yellow80,     // destaques/promos
+    error = Red80,           // remover item/erros
+    background = Black,
+    surface = DarkGray,
+    onPrimary = White,
+    onSecondary = White,
+    onTertiary = Black,
+    onBackground = White,
+    onSurface = White
 )
+
+private val LightColorScheme = lightColorScheme(
+    primary = Green40,
+    secondary = BlueGrey40,
+    tertiary = Yellow40,
+    error = Red40,
+    background = Color(0xFFF5F6FA), // fundo suave
+    surface = White,
+    onPrimary = White,
+    onSecondary = White,
+    onTertiary = Black,
+    onBackground = Color(0xFF1C1C1C),
+    onSurface = Color(0xFF2E2E2E)
+)
+
 
 private val LightColorScheme = lightColorScheme(
     primary = Purple40,
