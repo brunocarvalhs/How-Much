@@ -12,7 +12,7 @@ env:
   NODE_VERSION: 16
 
   # 🔑 Secrets
-  GITHUB_TOKEN: ${{ secrets.TOKEN }}
+  TOKEN: ${{ secrets.TOKEN }}
 
 jobs:
   danger:
@@ -33,7 +33,7 @@ jobs:
       - name: Run Danger
         run: danger ci --dangerfile .github/danger/dangerfile.js
         env:
-          GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ env.TOKEN }}
 
       - name: Install GitHub CLI
         run: sudo apt-get install gh
@@ -48,4 +48,4 @@ jobs:
             gh pr review "${{ github.event.pull_request.number }}" --approve --body "Aprovado automaticamente pelo DangerJS."
           fi
         env:
-          GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ env.TOKEN }}
