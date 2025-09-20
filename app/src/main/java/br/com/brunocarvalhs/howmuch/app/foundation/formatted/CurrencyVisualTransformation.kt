@@ -7,7 +7,10 @@ import java.text.NumberFormat
 import java.util.Locale
 
 class CurrencyVisualTransformation(
-    locale: Locale = Locale("pt", "BR")
+    locale: Locale = Locale.Builder()
+        .setLanguage("pt")
+        .setRegion("BR")
+        .build()
 ) : VisualTransformation {
 
     private val formatter = NumberFormat.getCurrencyInstance(locale)

@@ -2,7 +2,6 @@ package br.com.brunocarvalhs.howmuch
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,7 +11,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
+import androidx.metrics.performance.JankStats
 import androidx.navigation.compose.rememberNavController
+import br.com.brunocarvalhs.howmuch.app.foundation.analytics.AnalyticsEvent
+import br.com.brunocarvalhs.howmuch.app.foundation.analytics.AnalyticsEvents
+import br.com.brunocarvalhs.howmuch.app.foundation.analytics.AnalyticsParam
 import br.com.brunocarvalhs.howmuch.app.foundation.analytics.firstOpen
 import br.com.brunocarvalhs.howmuch.app.foundation.analytics.trackNavigation
 import br.com.brunocarvalhs.howmuch.app.foundation.extensions.isFirstAppOpen
@@ -26,6 +29,7 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        trackLifecycleEvent("onCreate")
         setContent {
             val navController = rememberNavController()
             navController.trackNavigation()
@@ -46,5 +50,41 @@ class MainActivity : ComponentActivity() {
                 firstOpen()
             }
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        trackLifecycleEvent("onStart")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        trackLifecycleEvent("onResume")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        trackLifecycleEvent("onPause")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        trackLifecycleEvent("onStop")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        trackLifecycleEvent("onDestroy")
+    }
+
+    private fun trackLifecycleEvent(eventName: String) {
+        AnalyticsEvents.trackEvent(
+            event = AnalyticsEvent.LIFECYCLE,
+            params = mapOf(
+                AnalyticsParam.LIFECYCLE to eventName,
+                AnalyticsParam.SCREEN_NAME to "MainActivity",
+                AnalyticsParam.TIMESTAMP to System.currentTimeMillis()
+            )
+        )
     }
 }

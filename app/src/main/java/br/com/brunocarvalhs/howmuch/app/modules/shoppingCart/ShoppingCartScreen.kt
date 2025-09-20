@@ -14,6 +14,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -173,7 +174,11 @@ fun ShoppingCartContent(
                     )
                 }
             ) {
-                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_product))
+                Icon(
+                    Icons.Default.Add,
+                    contentDescription = stringResource(R.string.add_product),
+                    tint = MaterialTheme.colorScheme.onSecondary
+                )
             }
         }
     ) { paddingValues ->
