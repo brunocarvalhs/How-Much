@@ -97,6 +97,39 @@ fun Modifier.trackClick(
     )
 }
 
+internal fun trackClick(
+    viewId: String,
+    viewName: String? = null,
+    screenName: String? = null
+) = {
+    AnalyticsEvents.trackEvent(
+        AnalyticsEvent.CLICK,
+        mapOf(
+            AnalyticsParam.ITEM_ID to viewId,
+            AnalyticsParam.ITEM_NAME to (viewName ?: viewId),
+            AnalyticsParam.SCREEN_NAME to (screenName ?: "Unknown"),
+            AnalyticsParam.TIMESTAMP to System.currentTimeMillis()
+        )
+    )
+}
+
+internal fun trackLongClick(
+    viewId: String,
+    viewName: String? = null,
+    screenName: String? = null
+) = {
+    AnalyticsEvents.trackEvent(
+        AnalyticsEvent.CLICK,
+        mapOf(
+            AnalyticsParam.ITEM_ID to viewId,
+            AnalyticsParam.ITEM_NAME to (viewName ?: viewId),
+            AnalyticsParam.SCREEN_NAME to (screenName ?: "Unknown"),
+            AnalyticsParam.CONTENT_TYPE to "long_press",
+            AnalyticsParam.TIMESTAMP to System.currentTimeMillis()
+        )
+    )
+}
+
 // Errors ------------------------------------------------------------------------------------------------------------------
 fun Throwable.trackError(message: String, screenName: String? = null) {
     AnalyticsEvents.trackEvent(

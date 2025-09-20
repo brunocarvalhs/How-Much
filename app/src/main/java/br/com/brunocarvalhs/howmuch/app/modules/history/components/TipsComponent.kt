@@ -21,6 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import br.com.brunocarvalhs.howmuch.R
+import br.com.brunocarvalhs.howmuch.app.foundation.analytics.trackClick
 import br.com.brunocarvalhs.howmuch.app.foundation.constants.TIPS
 import br.com.brunocarvalhs.howmuch.app.foundation.constants.Tips
 import br.com.brunocarvalhs.howmuch.app.foundation.extensions.openUrl
@@ -57,7 +58,14 @@ private fun TipItem(
         ),
         modifier = Modifier.padding(4.dp),
         shape = MaterialTheme.shapes.medium,
-        onClick = onClick
+        onClick = {
+            onClick()
+            trackClick(
+                viewId = "tip_${tip.title}",
+                viewName = "Tip: ${tip.title}",
+                screenName = "HistoryScreen"
+            )
+        }
     ) {
         Column(
             modifier = Modifier
@@ -81,7 +89,6 @@ private fun TipItem(
         }
     }
 }
-
 
 @Composable
 @Preview

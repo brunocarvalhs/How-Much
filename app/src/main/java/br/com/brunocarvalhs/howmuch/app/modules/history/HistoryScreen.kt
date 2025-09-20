@@ -28,6 +28,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import br.com.brunocarvalhs.domain.entities.ShoppingCart
 import br.com.brunocarvalhs.howmuch.R
+import br.com.brunocarvalhs.howmuch.app.foundation.analytics.trackClick
 import br.com.brunocarvalhs.howmuch.app.foundation.constants.TIPS
 import br.com.brunocarvalhs.howmuch.app.foundation.extensions.DateFormat
 import br.com.brunocarvalhs.howmuch.app.foundation.extensions.isWithinLastDays
@@ -67,7 +68,14 @@ fun HistoryScreen(
     HistoryContent(
         uiState = uiState,
         onIntent = viewModel::onIntent,
-        onShared = { cart -> viewModel.sharedCart(context, cart) }
+        onShared = { cart ->
+            viewModel.sharedCart(context, cart)
+            trackClick(
+                viewId = "history_item_shared",
+                viewName = "History Item Shared",
+                screenName = "HistoryScreen"
+            )
+        }
     )
 }
 
@@ -124,8 +132,6 @@ fun HistoryContent(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-
-
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,

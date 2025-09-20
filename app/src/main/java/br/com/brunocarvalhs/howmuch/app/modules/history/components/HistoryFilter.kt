@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import br.com.brunocarvalhs.howmuch.R
+import br.com.brunocarvalhs.howmuch.app.foundation.analytics.trackClick
 
 @Composable
 fun HistoryFilter(
@@ -28,7 +29,14 @@ fun HistoryFilter(
         items(HistoryFilterType.entries) { filter ->
             FilterChip(
                 selected = selectedFilter == filter,
-                onClick = { onFilterSelected(filter) },
+                onClick = {
+                    onFilterSelected(filter)
+                    trackClick(
+                        viewId = "filter_${filter.name.lowercase()}",
+                        viewName = "History Filter: ${filter.name}",
+                        screenName = "HistoryScreen"
+                    )
+                },
                 label = { Text(stringResource(filter.displayName)) }
             )
         }
