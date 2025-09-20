@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -51,9 +52,10 @@ private fun TipItem(
     onClick: () -> Unit,
 ) {
     Card(
-        modifier = Modifier
-            .background(MaterialTheme.colorScheme.onPrimary)
-            .padding(4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        ),
+        modifier = Modifier.padding(4.dp),
         shape = MaterialTheme.shapes.medium,
         onClick = onClick
     ) {

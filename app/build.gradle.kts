@@ -64,10 +64,9 @@ dependencies {
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.material3)
-    implementation(libs.androidx.navigation.compose)
-    implementation(libs.material3)
-    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.core.splashscreen)
 
+    // Tests
     testImplementation(libs.junit)
     testImplementation(libs.mockk)
     testImplementation(libs.androidx.espresso.core)
@@ -84,6 +83,9 @@ dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.ui.tooling.preview)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.material3)
+    implementation(libs.androidx.compose.material3)
 
     // AppStartUp
     implementation(libs.androidx.startup.runtime)

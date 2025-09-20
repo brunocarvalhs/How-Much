@@ -31,7 +31,10 @@ fun BaseScreen(
 
     Scaffold(
         bottomBar = {
-            NavigationBar(modifier = Modifier.fillMaxWidth()) {
+            NavigationBar(
+                modifier = Modifier.fillMaxWidth(),
+                containerColor = MaterialTheme.colorScheme.surface
+            ) {
                 tabs.keys.forEach { item ->
                     NavigationBarItem(
                         selected = item == selectedTab,

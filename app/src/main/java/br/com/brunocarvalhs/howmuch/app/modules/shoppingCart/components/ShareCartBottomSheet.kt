@@ -21,6 +21,8 @@ fun ShareCartBottomSheet(
     onDismiss: () -> Unit
 ) {
     ModalBottomSheet(
+        containerColor = MaterialTheme.colorScheme.surface,
+        contentColor = MaterialTheme.colorScheme.onSurface,
         onDismissRequest = { onDismiss() },
     ) {
         Column(
