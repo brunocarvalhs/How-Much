@@ -37,6 +37,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import br.com.brunocarvalhs.howmuch.R
+import br.com.brunocarvalhs.howmuch.app.foundation.analytics.AnalyticsEvent
+import br.com.brunocarvalhs.howmuch.app.foundation.analytics.AnalyticsEvents.trackEvent
+import br.com.brunocarvalhs.howmuch.app.foundation.analytics.AnalyticsParam
+import br.com.brunocarvalhs.howmuch.app.foundation.analytics.trackClick
 import br.com.brunocarvalhs.howmuch.app.foundation.constants.EMPTY_LONG
 import br.com.brunocarvalhs.howmuch.app.foundation.constants.EMPTY_STRING
 import br.com.brunocarvalhs.howmuch.app.foundation.constants.ONE_INT
@@ -96,6 +100,13 @@ fun ProductFormBottomSheet(
 
     LaunchedEffect(shoppingCartId) {
         viewModel.onIntent(ProductUiIntent.LoadShoppingCart(shoppingCartId))
+        trackEvent(
+            AnalyticsEvent.SCREEN_VIEW,
+            mapOf(
+                AnalyticsParam.SCREEN_NAME to "ProductFormBottomSheet",
+                AnalyticsParam.SHOPPING_CART_ID to (shoppingCartId ?: "unknown")
+            )
+        )
     }
 
     LaunchedEffect(uiEffect) {
@@ -118,8 +129,15 @@ fun ProductFormBottomSheet(
     ModalBottomSheet(
         containerColor = MaterialTheme.colorScheme.surface,
         contentColor = MaterialTheme.colorScheme.onSurface,
-        onDismissRequest = { onDismiss() },
-        sheetState = sheetState
+        sheetState = sheetState,
+        onDismissRequest = {
+            onDismiss()
+            trackClick(
+                viewId = "product_sheet_dismiss",
+                viewName = "Dismiss Product Sheet",
+                screenName = "ProductFormBottomSheet"
+            )
+        },
     ) {
         ProductContent(
             uiState = uiState,
@@ -163,6 +181,11 @@ private fun ProductContent(
                     price = EMPTY_LONG
                     quantity = ONE_INT
                     nameFocusRequester.requestFocus()
+                    trackClick(
+                        viewId = "btn_add_product",
+                        viewName = "Submit Product",
+                        screenName = "ProductFormBottomSheet"
+                    )
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -183,7 +206,14 @@ private fun ProductContent(
 
             ProductNameInput(
                 name = name,
-                onNameChange = { name = it },
+                onNameChange = { newName ->
+                    name = newName
+                    trackClick(
+                        viewId = "input_product_name",
+                        viewName = "Product Name Changed",
+                        screenName = "ProductFormBottomSheet"
+                    )
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .focusRequester(nameFocusRequester)
@@ -191,7 +221,14 @@ private fun ProductContent(
 
             PriceInput(
                 price = price,
-                onPriceChange = { newPrice -> price = newPrice },
+                onPriceChange = { newPrice ->
+                    price = newPrice
+                    trackClick(
+                        viewId = "input_product_price",
+                        viewName = "Product Price Changed",
+                        screenName = "ProductFormBottomSheet"
+                    )
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .focusRequester(priceFocusRequester)
@@ -199,8 +236,15 @@ private fun ProductContent(
 
             QuantitySelector(
                 quantity = quantity,
-                onQuantityChange = { quantity = it },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                onQuantityChange = { newQuantity ->
+                    quantity = newQuantity
+                    trackClick(
+                        viewId = "input_product_quantity",
+                        viewName = "Product Quantity Changed",
+                        screenName = "ProductFormBottomSheet"
+                    )
+                }
             )
         }
     }

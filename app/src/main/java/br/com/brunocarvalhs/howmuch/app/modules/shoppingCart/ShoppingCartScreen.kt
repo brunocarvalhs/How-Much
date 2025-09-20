@@ -33,6 +33,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import br.com.brunocarvalhs.howmuch.R
+import br.com.brunocarvalhs.howmuch.app.foundation.analytics.AnalyticsEvent
+import br.com.brunocarvalhs.howmuch.app.foundation.analytics.AnalyticsEvents.trackEvent
+import br.com.brunocarvalhs.howmuch.app.foundation.analytics.AnalyticsParam
+import br.com.brunocarvalhs.howmuch.app.foundation.analytics.trackClick
 import br.com.brunocarvalhs.howmuch.app.foundation.extensions.shareText
 import br.com.brunocarvalhs.howmuch.app.foundation.extensions.toCurrencyString
 import br.com.brunocarvalhs.howmuch.app.modules.products.ProductFormBottomSheet
@@ -55,6 +59,15 @@ fun ShoppingCartScreen(
     var showProductSheet by rememberSaveable { mutableStateOf(false) }
     var showShareSheet by rememberSaveable { mutableStateOf(false) }
     var showFinalizeDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        trackEvent(
+            event = AnalyticsEvent.SCREEN_VIEW,
+            params = mapOf(
+                AnalyticsParam.SCREEN_NAME to "ShoppingCartScreen",
+            )
+        )
+    }
 
     LaunchedEffect(uiEffect) {
         uiEffect?.let { effect ->
@@ -138,13 +151,27 @@ fun ShoppingCartContent(
                     R.string.currency,
                     uiState.totalPrice.toCurrencyString()
                 ) else null,
-                onShared = { showTokenSheet = true }
+                onShared = {
+                    showTokenSheet = true
+                    trackClick(
+                        viewId = "header_share_cart",
+                        viewName = "Header Share Cart",
+                        screenName = "ShoppingCartScreen"
+                    )
+                }
             )
         },
         floatingActionButton = {
             FloatingActionButton(
                 elevation = FloatingActionButtonDefaults.elevation(0.dp),
-                onClick = onAddToCart
+                onClick = {
+                    onAddToCart()
+                    trackClick(
+                        viewId = "btn_add_product",
+                        viewName = "Add Product FAB",
+                        screenName = "ShoppingCartScreen"
+                    )
+                }
             ) {
                 Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_product))
             }
@@ -159,8 +186,22 @@ fun ShoppingCartContent(
             item {
                 ShoppingCartCardsPager(
                     uiState = uiState,
-                    onCheckout = onCheckout,
-                    onShared = onShared
+                    onCheckout = {
+                        onCheckout()
+                        trackClick(
+                            viewId = "pager_checkout",
+                            viewName = "Checkout Pager",
+                            screenName = "ShoppingCartScreen"
+                        )
+                    },
+                    onShared = {
+                        onShared()
+                        trackClick(
+                            viewId = "pager_share",
+                            viewName = "Share Pager",
+                            screenName = "ShoppingCartScreen"
+                        )
+                    }
                 )
                 Spacer(modifier = Modifier.height(16.dp))
             }
@@ -174,9 +215,19 @@ fun ShoppingCartContent(
                         product = product,
                         onRemove = {
                             onIntent(ShoppingCartUiIntent.RemoveItem(product.id))
+                            trackClick(
+                                viewId = "product_remove_${product.id}",
+                                viewName = "Remove Product",
+                                screenName = "ShoppingCartScreen"
+                            )
                         },
                         onQuantityChange = {
                             onIntent(ShoppingCartUiIntent.UpdateQuantity(product.id, it))
+                            trackClick(
+                                viewId = "product_quantity_${product.id}",
+                                viewName = "Change Quantity",
+                                screenName = "ShoppingCartScreen"
+                            )
                         }
                     )
                 }
@@ -189,35 +240,89 @@ fun ShoppingCartContent(
 
     TokenBottomSheet(
         showSheet = showTokenSheet,
-        onDismiss = { showTokenSheet = false },
-        onSubmit = { code -> onIntent(ShoppingCartUiIntent.SearchByToken(code)) }
+        onDismiss = {
+            showTokenSheet = false
+            trackClick(
+                viewId = "token_sheet_dismiss",
+                viewName = "Dismiss Token Sheet",
+                screenName = "ShoppingCartScreen"
+            )
+        },
+        onSubmit = { code ->
+            onIntent(ShoppingCartUiIntent.SearchByToken(token = code))
+            trackClick(
+                viewId = "token_sheet_submit",
+                viewName = "Submit Token",
+                screenName = "ShoppingCartScreen"
+            )
+        }
     )
 
     if (showProductSheet && uiState.id != null) {
         ProductFormBottomSheet(
             shoppingCartId = uiState.id,
-            onDismiss = { setShowProductSheet(false) }
+            onDismiss = {
+                setShowProductSheet(false)
+                trackClick(
+                    viewId = "product_sheet_dismiss",
+                    viewName = "Dismiss Product Sheet",
+                    screenName = "ShoppingCartScreen"
+                )
+            }
         )
     }
 
     if (showShareSheet) {
         ShareCartBottomSheet(
             token = uiState.token,
-            onShareList = onShareList,
-            onShareToken = onShareToken,
-            onDismiss = { setShowShareSheet(false) }
+            onShareList = {
+                onShareList()
+                trackClick(
+                    viewId = "share_list",
+                    viewName = "Share List",
+                    screenName = "ShoppingCartScreen"
+                )
+            },
+            onShareToken = {
+                onShareToken()
+                trackClick(
+                    viewId = "share_token",
+                    viewName = "Share Token",
+                    screenName = "ShoppingCartScreen"
+                )
+            },
+            onDismiss = {
+                setShowShareSheet(false)
+                trackClick(
+                    viewId = "share_sheet_dismiss",
+                    viewName = "Dismiss Share Sheet",
+                    screenName = "ShoppingCartScreen"
+                )
+            }
         )
     }
 
     if (showFinalizeDialog) {
         FinalizePurchaseDialog(
-            onDismiss = { setShowFinalizeDialog(false) },
+            onDismiss = {
+                setShowFinalizeDialog(false)
+                trackClick(
+                    viewId = "finalize_dialog_dismiss",
+                    viewName = "Dismiss Finalize Dialog",
+                    screenName = "ShoppingCartScreen"
+                )
+            },
             onSubmit = { name, price ->
-                onIntent.invoke(
+                onIntent(
                     ShoppingCartUiIntent.FinalizePurchase(
                         market = name,
                         totalPrice = price
                     )
+                )
+                trackClick(
+                    viewId = "finalize_dialog_submit",
+                    viewName = "Submit Finalize Dialog",
+                    screenName = "ShoppingCartScreen"
                 )
             }
         )

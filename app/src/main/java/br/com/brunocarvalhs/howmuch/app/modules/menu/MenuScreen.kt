@@ -2,7 +2,12 @@ package br.com.brunocarvalhs.howmuch.app.modules.menu
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
@@ -13,6 +18,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -20,6 +26,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import br.com.brunocarvalhs.howmuch.BuildConfig
 import br.com.brunocarvalhs.howmuch.R
+import br.com.brunocarvalhs.howmuch.app.foundation.analytics.AnalyticsEvent
+import br.com.brunocarvalhs.howmuch.app.foundation.analytics.AnalyticsEvents.trackEvent
+import br.com.brunocarvalhs.howmuch.app.foundation.analytics.AnalyticsParam
+import br.com.brunocarvalhs.howmuch.app.foundation.analytics.trackClick
 import br.com.brunocarvalhs.howmuch.app.foundation.extensions.getAppVersion
 import br.com.brunocarvalhs.howmuch.app.foundation.extensions.openPlayStore
 
@@ -42,6 +52,17 @@ fun MenuScreen() {
         },
     )
 
+    LaunchedEffect(Unit) {
+        trackEvent(
+            AnalyticsEvent.SCREEN_VIEW,
+            mapOf(
+                AnalyticsParam.SCREEN_NAME to "MenuScreen",
+                AnalyticsParam.APP_VERSION to version,
+                AnalyticsParam.DEBUG to isDebug.toString()
+            )
+        )
+    }
+
     MenuContent(
         services = services,
         version = version,
@@ -56,6 +77,7 @@ fun MenuContent(
     version: String,
     isDebug: Boolean,
 ) {
+    val context = LocalContext.current
     Scaffold(
         topBar = {
             LargeTopAppBar(
@@ -78,7 +100,14 @@ fun MenuContent(
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { service.onClick() },
+                        .clickable {
+                            service.onClick()
+                            trackClick(
+                                viewId = "service_${service.title}",
+                                viewName = context.getString(service.title),
+                                screenName = "MenuScreen"
+                            )
+                        },
                     shape = MaterialTheme.shapes.medium,
                 ) {
                     Text(

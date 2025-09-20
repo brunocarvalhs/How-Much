@@ -21,6 +21,7 @@ enum class AnalyticsParam(val paramName: String) {
     DEVICE("device"),
     OS_VERSION("os_version"),
     APP_VERSION("app_version"),
+    DEBUG("debug"),
     CONNECTION_TYPE("connection_type"),
     USER_ID("user_id"),
 
@@ -36,4 +37,7 @@ enum class AnalyticsParam(val paramName: String) {
     NOTIFICATION_TYPE("notification_type"),
     PERMISSION_TYPE("permission_type"),
     FEEDBACK_TYPE("feedback_type"),
+
+    // Product
+    SHOPPING_CART_ID("shopping_cart_id")
 }

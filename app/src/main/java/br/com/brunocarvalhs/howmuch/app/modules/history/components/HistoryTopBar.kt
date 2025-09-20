@@ -56,7 +56,6 @@ fun HistoryTopBar(
         },
         actions = {
             if (selectionMode) {
-                // Select All / Deselect All
                 IconButton(onClick = {
                     if (selectedCount == totalItems) {
                         onNotSelectAll()
@@ -77,7 +76,6 @@ fun HistoryTopBar(
                     Icon(
                         painter = painterResource(R.drawable.ic_select_all),
                         contentDescription = stringResource(R.string.select_all),
-                        tint = MaterialTheme.colorScheme.onPrimary
                     )
                 }
 
@@ -93,7 +91,6 @@ fun HistoryTopBar(
                     Icon(
                         imageVector = Icons.Default.Delete,
                         contentDescription = stringResource(R.string.delete_selected),
-                        tint = MaterialTheme.colorScheme.onPrimary
                     )
                 }
             } else {
@@ -109,7 +106,6 @@ fun HistoryTopBar(
                     Icon(
                         painter = painterResource(R.drawable.ic_check_box),
                         contentDescription = stringResource(R.string.select_items),
-                        tint = MaterialTheme.colorScheme.onPrimary
                     )
                 }
             }
