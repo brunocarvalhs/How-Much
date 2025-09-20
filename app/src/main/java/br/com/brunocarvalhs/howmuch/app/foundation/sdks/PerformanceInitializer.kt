@@ -4,21 +4,24 @@ import android.content.Context
 import androidx.startup.Initializer
 import br.com.brunocarvalhs.howmuch.BuildConfig
 import br.com.brunocarvalhs.howmuch.app.foundation.extensions.getId
-import com.google.firebase.FirebaseApp
-import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.perf.FirebasePerformance
 import com.google.firebase.perf.metrics.AddTrace
 
-class FirebaseInitializer : Initializer<Unit> {
+class PerformanceInitializer : Initializer<Unit> {
 
-    @AddTrace(name = "SDK-Firebase")
+    @AddTrace(name = "SDK-Firebase-Performance")
     override fun create(context: Context) {
-        FirebaseApp.initializeApp(context)
+        FirebasePerformance.getInstance().apply {
+            isPerformanceCollectionEnabled = BuildConfig.DEBUG.not()
+            putAttribute(DEVICE_ID, context.getId())
+        }
     }
 
-
     override fun dependencies(): List<Class<out Initializer<*>>> {
-        return emptyList()
+        return listOf(FirebaseInitializer::class.java)
+    }
+
+    companion object {
+        const val DEVICE_ID = "deviceId"
     }
 }

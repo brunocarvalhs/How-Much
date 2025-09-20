@@ -1,7 +1,14 @@
 package br.com.brunocarvalhs.howmuch.app.foundation.extensions
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.provider.Settings.Secure
+
+@SuppressLint("HardwareIds")
+fun Context.getId(): String {
+    return Secure.getString(this.contentResolver, Secure.ANDROID_ID)
+}
 
 internal fun Context.shareText(subject: String, text: String) {
     val intent = Intent().shareText(subject = subject, text = text)
