@@ -30,7 +30,15 @@
             android:exported="false"
             tools:node="merge">
             <meta-data
-                android:name="br.com.brunocarvalhs.howmuch.app.foundation.sdks.FirebaseInitializer"
+                android:name="br.com.brunocarvalhs.howmuch.app.foundation.sdks.AnalyticsInitializer"
+                android:value="androidx.startup" />
+
+            <meta-data
+                android:name="br.com.brunocarvalhs.howmuch.app.foundation.sdks.CrashlyticsInitializer"
+                android:value="androidx.startup" />
+
+            <meta-data
+                android:name="br.com.brunocarvalhs.howmuch.app.foundation.sdks.PerformanceInitializer"
                 android:value="androidx.startup" />
         </provider>
     </application>
