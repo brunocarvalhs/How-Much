@@ -4,6 +4,19 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.provider.Settings.Secure
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withContext
+import androidx.core.content.edit
+
+suspend fun Context.isFirstAppOpen(): Boolean = withContext(Dispatchers.IO) {
+    val prefs = getSharedPreferences(packageName, Context.MODE_PRIVATE)
+    val isFirst = prefs.getBoolean("FIRST_APP_OPEN", true)
+    if (isFirst) {
+        prefs.edit { putBoolean("FIRST_APP_OPEN", false) }
+    }
+    isFirst
+}
 
 @SuppressLint("HardwareIds")
 fun Context.getId(): String {

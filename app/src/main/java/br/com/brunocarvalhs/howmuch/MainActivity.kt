@@ -9,9 +9,14 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
+import br.com.brunocarvalhs.howmuch.app.foundation.analytics.firstOpen
+import br.com.brunocarvalhs.howmuch.app.foundation.analytics.trackNavigation
+import br.com.brunocarvalhs.howmuch.app.foundation.extensions.isFirstAppOpen
 import br.com.brunocarvalhs.howmuch.app.foundation.theme.HowMuchTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -20,6 +25,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val navController = rememberNavController()
+            navController.trackNavigation()
             HowMuchTheme {
                 Surface(
                     modifier = Modifier
@@ -29,6 +35,12 @@ class MainActivity : ComponentActivity() {
                 ) {
                     MainApp(activity = this, navController = navController)
                 }
+            }
+        }
+
+        lifecycleScope.launch {
+            if (isFirstAppOpen()) {
+                firstOpen()
             }
         }
     }

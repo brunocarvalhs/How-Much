@@ -9,7 +9,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.navigation.NavController
 
 // Lifecycle -------------------------------------------------------------------------------------------------------------
-fun Activity.openApp() {
+fun Context.openApp() {
     AnalyticsEvents.trackEvent(
         AnalyticsEvent.APP_OPEN,
         mapOf(
@@ -24,7 +24,7 @@ fun Activity.openApp() {
     )
 }
 
-fun Activity.appBackground() {
+fun Context.appBackground() {
     AnalyticsEvents.trackEvent(
         AnalyticsEvent.APP_BACKGROUND,
         mapOf(
@@ -33,7 +33,7 @@ fun Activity.appBackground() {
     )
 }
 
-fun Activity.appForeground() {
+fun Context.appForeground() {
     AnalyticsEvents.trackEvent(
         AnalyticsEvent.APP_FOREGROUND,
         mapOf(
@@ -42,7 +42,7 @@ fun Activity.appForeground() {
     )
 }
 
-fun Context.firstOpen() {
+fun Activity.firstOpen() {
     AnalyticsEvents.trackEvent(
         AnalyticsEvent.FIRST_OPEN,
         mapOf(
