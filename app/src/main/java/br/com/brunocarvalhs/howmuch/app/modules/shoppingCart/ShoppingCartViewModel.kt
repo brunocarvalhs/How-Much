@@ -19,6 +19,10 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -29,10 +33,9 @@ class ShoppingCartViewModel @Inject constructor(
     private val enterShoppingCartWithTokenUseCase: EnterShoppingCartWithTokenUseCase,
     private val updateShoppingCartUseCase: UpdateShoppingCartUseCase,
     private val finalizePurchaseUseCase: FinalizePurchaseUseCase,
-    private val cartLocalStorage: ICartLocalStorage
+    private val cartLocalStorage: ICartLocalStorage,
 ) : ViewModel() {
 
-    private var cartId: String? = null
     private val _uiState = MutableStateFlow(ShoppingCartUiState())
     val uiState: StateFlow<ShoppingCartUiState> = _uiState.asStateFlow()
 
@@ -45,10 +48,7 @@ class ShoppingCartViewModel @Inject constructor(
 
     fun onIntent(intent: ShoppingCartUiIntent) {
         when (intent) {
-            is ShoppingCartUiIntent.AddProduct -> viewModelScope.launch {
-                _uiEffect.emit(NavigateToAddProduct(cartId))
-            }
-
+            is ShoppingCartUiIntent.AddProduct -> onAddProduct()
             is ShoppingCartUiIntent.RemoveItem -> removeProduct(productId = intent.productId)
             ShoppingCartUiIntent.Retry -> initializeCart()
             is ShoppingCartUiIntent.SearchByToken -> searchByToken(token = intent.token)
@@ -70,171 +70,146 @@ class ShoppingCartViewModel @Inject constructor(
         }
     }
 
+    private fun onAddProduct() = viewModelScope.launch {
+        _uiEffect.emit(NavigateToAddProduct(uiState.value.cartId))
+    }
+
     private fun initializeCart() = viewModelScope.launch {
-        _uiState.value = ShoppingCartUiState(isLoading = true)
-        cartLocalStorage.getCartNow()?.let { cachedCart ->
-            cartId = cachedCart.id
-            observeCart(cartId = cachedCart.id)
-        } ?: run {
-            val newCart = ShoppingCartModel()
-            cartId = newCart.id
-            createAndObserveCart(newCart)
+        _uiState.update { it.copy(isLoading = true) }
+        val cachedCart = cartLocalStorage.getCartNow()
+        if (cachedCart != null) {
+            observeCart(cachedCart.id)
+        } else {
+            createAndObserveCart()
         }
     }
 
     private fun searchByToken(token: String) = viewModelScope.launch {
-        _uiState.value = _uiState.value.copy(isLoading = true)
-        val result = enterShoppingCartWithTokenUseCase(token).getOrNull()
-        if (result != null) {
-            cartId = result.id
-            cartLocalStorage.saveCartNow(result)
-            observeCart(result.id)
-        } else {
-            _uiEffect.emit(ShoppingCartUiEffect.ShowError("Invalid token"))
-        }
+        _uiState.update { it.copy(isLoading = true) }
+        enterShoppingCartWithTokenUseCase(token)
+            .onSuccess { cart ->
+                cartLocalStorage.saveCartNow(cart)
+                observeCart(cart.id)
+            }
+            .onFailure {
+                _uiState.update { it.copy(isLoading = false) }
+                _uiEffect.emit(ShoppingCartUiEffect.ShowError("Token inválido"))
+            }
     }
 
-    private fun createAndObserveCart(shoppingCart: ShoppingCartModel) = viewModelScope.launch {
-        _uiState.value = _uiState.value.copy(isLoading = true)
-        createShoppingCartUseCase(shoppingCart).onSuccess { cart ->
-            cartId = cart.id
-            observeCart(cart.id)
-            cartLocalStorage.saveCartNow(cart)
-            _uiState.value = _uiState.value.copy(isLoading = false)
-        }.onFailure {
-            _uiEffect.emit(ShoppingCartUiEffect.ShowError("Failed to create shopping cart"))
-            _uiState.value = _uiState.value.copy(isLoading = false)
-        }
+    private fun createAndObserveCart() = viewModelScope.launch {
+        _uiState.value = ShoppingCartUiState()
+        _uiState.update { it.copy(isLoading = true) }
+        val newCart = ShoppingCartModel()
+        createShoppingCartUseCase(newCart)
+            .onSuccess { cart ->
+                cartLocalStorage.saveCartNow(cart)
+                observeCart(cart.id)
+            }
+            .onFailure {
+                handleError("Falha ao criar o carrinho de compras")
+            }
     }
 
-    private fun observeCart(cartId: String) = viewModelScope.launch {
-        observeShoppingCartUseCase(cartId).collect { cart ->
-            updateUiState(
-                products = cart.products,
-                totalPrice = cart.recalculateTotal(),
-                token = cart.token,
-            )
-        }
+    private fun observeCart(cartId: String) {
+        observeShoppingCartUseCase(cartId)
+            .onEach { cart ->
+                if (cart.purchaseDate != null) {
+                    cartLocalStorage.clearCart()
+                    createAndObserveCart()
+                    return@onEach
+                }
+
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        cartId = cart.id,
+                        products = cart.products,
+                        totalPrice = cart.recalculateTotal(),
+                        token = cart.token,
+                        market = cart.market
+                    )
+                }
+            }
+            .catch { error ->
+                Log.e(
+                    this@ShoppingCartViewModel.javaClass.simpleName,
+                    "Falha ao observar o carrinho com id: $cartId. Provavelmente foi deletado.",
+                    error
+                )
+                cartLocalStorage.clearCart()
+                createAndObserveCart()
+            }
+            .launchIn(viewModelScope)
     }
 
     private fun removeProduct(productId: String) = viewModelScope.launch {
-        val currentProducts = _uiState.value.products.toMutableList()
-        val productToRemove = currentProducts.find { it.id == productId }
-
-        if (productToRemove != null) {
-            currentProducts.remove(productToRemove)
-
-            cartLocalStorage.getCartNow()?.let { cart ->
-                val updatedCart = cart.toCopy(products = currentProducts)
-                try {
-                    updateShoppingCartUseCase(updatedCart)
-                    updateUiState(products = currentProducts)
-                } catch (_: Exception) {
-                    _uiEffect.emit(ShoppingCartUiEffect.ShowError("Failed to remove product"))
-                }
-            }
-        } else {
-            _uiEffect.emit(ShoppingCartUiEffect.ShowError("Product not found"))
+        updateProductListInCart { products ->
+            products.filter { it.id != productId }
         }
     }
 
     private fun updateProductQuantity(productId: String, newQuantity: Int) = viewModelScope.launch {
         if (newQuantity < 1) return@launch
+        updateProductListInCart { products ->
+            products.map { if (it.id == productId) it.toCopy(quantity = newQuantity) else it }
+        }
+    }
 
-        val currentProducts = _uiState.value.products.toMutableList()
-        val productIndex = currentProducts.indexOfFirst { it.id == productId }
-
-        if (productIndex != -1) {
-            val oldProduct = currentProducts[productIndex]
-            val updatedProduct = oldProduct.toCopy(quantity = newQuantity)
-            currentProducts[productIndex] = updatedProduct
-
-            cartLocalStorage.getCartNow()?.let { cart ->
-                val updatedCart = cart.toCopy(products = currentProducts)
-                try {
-                    updateShoppingCartUseCase(updatedCart)
-                    updateUiState(products = currentProducts)
-                } catch (_: Exception) {
-                    _uiEffect.emit(ShoppingCartUiEffect.ShowError("Failed to update product quantity"))
+    private fun checkProduct(product: Product, price: Long, isChecked: Boolean) =
+        viewModelScope.launch {
+            updateProductListInCart { products ->
+                products.map {
+                    if (it.id == product.id) {
+                        it.toCopy(price = price, isChecked = isChecked)
+                    } else {
+                        it
+                    }
                 }
             }
-        } else {
-            _uiEffect.emit(ShoppingCartUiEffect.ShowError("Product not found"))
-        }
-    }
-
-    private fun updateUiState(
-        products: List<Product>? = null,
-        totalPrice: Long? = null,
-        token: String? = null,
-        isLoading: Boolean = false
-    ) {
-        val updatedProducts = products ?: _uiState.value.products
-        val updatedTotalPrice = totalPrice ?: run {
-            updatedProducts.sumOf { (it.price ?: 0) * it.quantity }
         }
 
-        _uiState.value = _uiState.value.copy(
-            isLoading = isLoading,
-            cartId = cartId,
-            products = updatedProducts,
-            totalPrice = updatedTotalPrice,
-            token = token ?: _uiState.value.token,
-        )
+    private suspend fun updateProductListInCart(transform: (List<Product>) -> List<Product>) {
+        val cart = cartLocalStorage.getCartNow()
+        if (cart == null) {
+            _uiEffect.emit(ShoppingCartUiEffect.ShowError("Carrinho não encontrado"))
+            createAndObserveCart()
+            return
+        }
+
+        val updatedProducts = transform(cart.products).toMutableList()
+        val updatedCart = cart.toCopy(products = updatedProducts)
+
+        updateShoppingCartUseCase(updatedCart)
+            .onFailure { handleError("Falha ao atualizar o produto") }
     }
 
-    private fun finalizePurchase(
-        market: String,
-        totalPrice: Long
-    ) = viewModelScope.launch {
-        _uiState.value = _uiState.value.copy(isLoading = true)
-        cartId?.let { id ->
-            finalizePurchaseUseCase(id, market = market, price = totalPrice).onSuccess {
-                initializeCart()
+    private fun finalizePurchase(market: String, totalPrice: Long) = viewModelScope.launch {
+        val cartToArchive = cartLocalStorage.getCartNow()
+
+        if (cartToArchive == null) {
+            _uiEffect.emit(ShoppingCartUiEffect.ShowError("Carrinho não encontrado"))
+            return@launch
+        }
+
+        _uiState.update { it.copy(isLoading = true) }
+
+        finalizePurchaseUseCase(cartToArchive.id, market = market, price = totalPrice)
+            .onSuccess {
                 _uiEffect.emit(ShoppingCartUiEffect.ShowError("Compra finalizada com sucesso!"))
-                _uiState.value = _uiState.value.copy(isLoading = false)
-            }.onFailure {
+            }
+            .onFailure {
                 Log.e(
                     this@ShoppingCartViewModel.javaClass.simpleName,
                     "Failed to finalize purchase",
                     it
                 )
-                _uiEffect.emit(ShoppingCartUiEffect.ShowError("Falha ao finalizar a compra"))
-                _uiState.value = _uiState.value.copy(isLoading = false)
+                handleError("Falha ao finalizar a compra")
             }
-        } ?: run {
-            _uiState.value = _uiState.value.copy(isLoading = false)
-            _uiEffect.emit(ShoppingCartUiEffect.ShowError("Carrinho não encontrado"))
-        }
     }
 
-    fun checkProduct(
-        product: Product,
-        price: Long,
-        isChecked: Boolean
-    ) = viewModelScope.launch {
-        val currentProducts = _uiState.value.products.toMutableList()
-        val productIndex = currentProducts.indexOfFirst { it.id == product.id }
-
-        if (productIndex != -1) {
-            val oldProduct = currentProducts[productIndex]
-            val updatedProduct = oldProduct.toCopy(
-                price = price,
-                isChecked = isChecked
-            )
-            currentProducts[productIndex] = updatedProduct
-
-            cartLocalStorage.getCartNow()?.let { cart ->
-                val updatedCart = cart.toCopy(products = currentProducts)
-                try {
-                    updateShoppingCartUseCase(updatedCart)
-                    updateUiState(products = currentProducts)
-                } catch (_: Exception) {
-                    _uiEffect.emit(ShoppingCartUiEffect.ShowError("Failed to update product"))
-                }
-            }
-        } else {
-            _uiEffect.emit(ShoppingCartUiEffect.ShowError("Product not found"))
-        }
+    private suspend fun handleError(message: String) {
+        _uiState.update { it.copy(isLoading = false) }
+        _uiEffect.emit(ShoppingCartUiEffect.ShowError(message))
     }
 }

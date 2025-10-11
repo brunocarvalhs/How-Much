@@ -9,28 +9,21 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import br.com.brunocarvalhs.howmuch.R
-import br.com.brunocarvalhs.howmuch.app.foundation.constants.EMPTY_STRING
 
 @Composable
 fun FinalizePurchaseDialog(
-    totalPrice: Long,
+    name: String,
+    onNameChange: (String) -> Unit,
+    price: Long,
+    onPriceChange: (Long) -> Unit,
+    isError: Boolean,
     onDismiss: () -> Unit,
-    onSubmit: (name: String, price: Long) -> Unit
+    onSubmit: () -> Unit,
 ) {
-    var name by remember { mutableStateOf(EMPTY_STRING) }
-    var price by remember { mutableLongStateOf(totalPrice) }
-    var error by remember { mutableStateOf(false) }
-
     AlertDialog(
         containerColor = MaterialTheme.colorScheme.surface,
         onDismissRequest = onDismiss,
@@ -39,38 +32,27 @@ fun FinalizePurchaseDialog(
             Column {
                 OutlinedTextField(
                     value = name,
-                    onValueChange = {
-                        name = it
-                        error = false
-                    },
+                    onValueChange = onNameChange,
                     label = { Text(stringResource(R.string.market_name)) },
+                    isError = isError
                 )
                 PriceInput(
                     price = price,
-                    onPriceChange = {
-                        price = it
-                        error = false
-                    },
+                    onPriceChange = onPriceChange,
                     label = { Text(stringResource(R.string.price_paid)) },
+                    isError = isError
                 )
-                if (error) {
+                if (isError) {
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = stringResource(R.string.message_error_field_required_finaliza_purchase),
-                        color = Color.Red
+                        color = MaterialTheme.colorScheme.error
                     )
                 }
             }
         },
         confirmButton = {
-            Button(onClick = {
-                if (name.isNotBlank() && price > 0L) {
-                    onSubmit(name, price)
-                    onDismiss()
-                } else {
-                    error = true
-                }
-            }) {
+            Button(onClick = onSubmit) {
                 Text(stringResource(R.string.confirm))
             }
         },

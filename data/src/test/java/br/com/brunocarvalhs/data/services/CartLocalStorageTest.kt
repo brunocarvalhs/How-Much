@@ -38,7 +38,7 @@ class CartLocalStorageTest {
         coEvery { dataStorageService.removeValue(CartLocalStorage.CART_LOCAL_STORAGE_KEY) } returns Unit
 
         // Act
-        cartLocalStorage.saveCart(cart)
+        cartLocalStorage.saveCartHistory(cart)
 
         // Assert
         coVerify {

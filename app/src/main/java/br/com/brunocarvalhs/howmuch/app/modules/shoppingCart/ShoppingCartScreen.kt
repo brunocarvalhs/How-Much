@@ -27,6 +27,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -47,6 +48,7 @@ import br.com.brunocarvalhs.howmuch.app.foundation.analytics.AnalyticsEvents.tra
 import br.com.brunocarvalhs.howmuch.app.foundation.analytics.AnalyticsParam
 import br.com.brunocarvalhs.howmuch.app.foundation.analytics.trackClick
 import br.com.brunocarvalhs.howmuch.app.foundation.annotations.DevicesPreview
+import br.com.brunocarvalhs.howmuch.app.foundation.constants.EMPTY_STRING
 import br.com.brunocarvalhs.howmuch.app.foundation.constants.ZERO_INT
 import br.com.brunocarvalhs.howmuch.app.foundation.extensions.setStatusBarIconColor
 import br.com.brunocarvalhs.howmuch.app.foundation.extensions.shareText
@@ -163,6 +165,18 @@ fun ShoppingCartContent(
             val firstVisibleItem = listState.firstVisibleItemIndex
             val offset = listState.firstVisibleItemScrollOffset
             firstVisibleItem > ZERO_INT || offset > 100
+        }
+    }
+
+    var name by rememberSaveable { mutableStateOf(EMPTY_STRING) }
+    var price by rememberSaveable { mutableLongStateOf(uiState.totalPrice) }
+    var isError by remember { mutableStateOf(false) }
+
+    LaunchedEffect(showFinalizeDialog, uiState.totalPrice) {
+        if (showFinalizeDialog) {
+            price = uiState.totalPrice
+            name = EMPTY_STRING
+            isError = false
         }
     }
 
@@ -412,7 +426,17 @@ fun ShoppingCartContent(
 
     if (showFinalizeDialog) {
         FinalizePurchaseDialog(
-            totalPrice = uiState.totalPrice,
+            name = name,
+            onNameChange = {
+                name = it
+                isError = false
+            },
+            price = price,
+            onPriceChange = {
+                price = it
+                isError = false
+            },
+            isError = isError,
             onDismiss = {
                 setShowFinalizeDialog(false)
                 trackClick(
@@ -421,18 +445,23 @@ fun ShoppingCartContent(
                     screenName = "ShoppingCartScreen"
                 )
             },
-            onSubmit = { name, price ->
-                onIntent(
-                    ShoppingCartUiIntent.FinalizePurchase(
-                        market = name,
-                        totalPrice = price
+            onSubmit = {
+                if (name.isNotBlank() && price > 0L) {
+                    onIntent(
+                        ShoppingCartUiIntent.FinalizePurchase(
+                            market = name,
+                            totalPrice = price
+                        )
                     )
-                )
-                trackClick(
-                    viewId = "finalize_dialog_submit",
-                    viewName = "Submit Finalize Dialog",
-                    screenName = "ShoppingCartScreen"
-                )
+                    setShowFinalizeDialog(false)
+                    trackClick(
+                        viewId = "finalize_dialog_submit",
+                        viewName = "Submit Finalize Dialog",
+                        screenName = "ShoppingCartScreen"
+                    )
+                } else {
+                    isError = true
+                }
             }
         )
     }
