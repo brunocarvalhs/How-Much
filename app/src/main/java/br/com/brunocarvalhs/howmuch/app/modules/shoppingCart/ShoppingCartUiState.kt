@@ -10,4 +10,5 @@ data class ShoppingCartUiState(
     val token: String? = null,
     val cartId: String? = null,
     val type: TypeShopping = TypeShopping.CART,
+    val market: String? = null,
 )

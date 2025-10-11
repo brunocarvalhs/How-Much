@@ -11,7 +11,11 @@ class CartLocalStorage @Inject constructor(
     private val dataStorageService: IDataStorageService
 ) : ICartLocalStorage {
 
-    override suspend fun saveCart(cart: ShoppingCart) {
+    override suspend fun clearCart() {
+        dataStorageService.removeValue(CART_LOCAL_STORAGE_KEY)
+    }
+
+    override suspend fun saveCartHistory(cart: ShoppingCart) {
         val existingHistory: MutableList<ShoppingCartModel> =
             dataStorageService.getValue(CART_HISTORY_KEY, Array<ShoppingCartModel>::class.java)
                 ?.toMutableList() ?: mutableListOf()
