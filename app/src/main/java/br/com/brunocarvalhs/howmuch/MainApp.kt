@@ -16,6 +16,7 @@ import br.com.brunocarvalhs.howmuch.app.foundation.navigation.NavBarItem
 import br.com.brunocarvalhs.howmuch.app.foundation.navigation.ProductGraphRoute
 import br.com.brunocarvalhs.howmuch.app.foundation.navigation.SharedCartBottomSheetRoute
 import br.com.brunocarvalhs.howmuch.app.foundation.navigation.ShoppingCartGraphRoute
+import br.com.brunocarvalhs.howmuch.app.foundation.navigation.SubscriptionGraphRoute
 import br.com.brunocarvalhs.howmuch.app.foundation.navigation.TokenBottomSheetRoute
 import br.com.brunocarvalhs.howmuch.app.modules.base.BaseScreen
 import br.com.brunocarvalhs.howmuch.app.modules.editProduct.EditProductScreen
@@ -27,12 +28,14 @@ import br.com.brunocarvalhs.howmuch.app.modules.menu.MenuScreen
 import br.com.brunocarvalhs.howmuch.app.modules.products.ProductFormScreen
 import br.com.brunocarvalhs.howmuch.app.modules.shared.SharedCartScreen
 import br.com.brunocarvalhs.howmuch.app.modules.shoppingCart.ShoppingCartScreen
+import br.com.brunocarvalhs.howmuch.app.modules.subscription.SubscriptionRoute
 import br.com.brunocarvalhs.howmuch.app.modules.token.TokenScreen
 
 @Composable
 fun MainApp(
     navController: NavHostController,
-    bottomSheetNavigator: BottomSheetNavigator
+    bottomSheetNavigator: BottomSheetNavigator,
+    isPremium: Boolean = false
 ) {
     ModalBottomSheetLayout(bottomSheetNavigator) {
         NavHost(navController = navController, startDestination = ShoppingCartGraphRoute) {
@@ -41,6 +44,7 @@ fun MainApp(
                     tabs = linkedMapOf(
                         NavBarItem.HOME to {
                             ShoppingCartScreen(
+                                isPremium = isPremium,
                                 navController = navController,
                                 viewModel = hiltViewModel()
                             )
@@ -51,10 +55,15 @@ fun MainApp(
                             )
                         },
                         NavBarItem.MENU to {
-                            MenuScreen()
+                            MenuScreen(
+                                navController = navController
+                            )
                         }
                     )
                 )
+            }
+            composable<SubscriptionGraphRoute> {
+                SubscriptionRoute(navController = navController)
             }
             bottomSheet<ProductGraphRoute> { backStackEntry ->
                 val route: ProductGraphRoute = backStackEntry.toRoute()
@@ -68,13 +77,15 @@ fun MainApp(
             bottomSheet<TokenBottomSheetRoute> {
                 TokenScreen(
                     navController = navController,
-                    viewModel = hiltViewModel()
+                    viewModel = hiltViewModel(),
+                    isPremium = isPremium,
                 )
             }
             bottomSheet<SharedCartBottomSheetRoute> {
                 SharedCartScreen(
                     navController = navController,
-                    viewModel = hiltViewModel()
+                    viewModel = hiltViewModel(),
+                    isPremium = isPremium,
                 )
             }
             bottomSheet<FinalizePurchaseRoute> {
