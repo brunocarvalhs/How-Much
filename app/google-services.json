@@ -1,0 +1,28 @@
+{
+  "project_info": {
+    "project_number": "172943209306",
+    "project_id": "cestou-86785",
+    "storage_bucket": "cestou-86785.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:172943209306:android:c72f185c55bb8207a1b963",
+        "android_client_info": {
+          "package_name": "br.com.brunocarvalhs.howmuch"
+        }
+      },
+      "api_key": [
+        {
+          "current_key": "AIzaSyBGwRHqwTRMfPemr_1GHL_UKsn3go_uUb4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
