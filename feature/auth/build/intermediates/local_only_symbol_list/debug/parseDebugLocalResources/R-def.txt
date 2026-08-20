@@ -1,0 +1,18 @@
+R_DEF: Internal format may change without notice
+local
+string login_apple
+string login_button
+string login_create_account
+string login_description
+string login_email_label
+string login_email_placeholder
+string login_forgot_password
+string login_google
+string login_password_label
+string login_social_continue
+string login_title
+string login_welcome
+string welcome_button
+string welcome_description
+string welcome_footer
+string welcome_title
