@@ -1,0 +1,1 @@
+-keep,allowobfuscation,allowshrinking class br.com.brunocarvalhs.howmuch.feature.auth.app.presentation.viewmodel.WelcomeViewModel
