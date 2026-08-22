@@ -1,8 +1,0 @@
-br.com.brunocarvalhs.howmuch.feature.auth-pngs-0 /Users/bruno/Developers/How-Much/feature/auth/build/generated/res/pngs/debug
-br.com.brunocarvalhs.howmuch.feature.auth-updated_navigation_xml-1 /Users/bruno/Developers/How-Much/feature/auth/build/generated/updated_navigation_xml/debug
-br.com.brunocarvalhs.howmuch.feature.auth-mergeDebugResources-2 /Users/bruno/Developers/How-Much/feature/auth/build/intermediates/incremental/debug/mergeDebugResources/merged.dir
-br.com.brunocarvalhs.howmuch.feature.auth-mergeDebugResources-3 /Users/bruno/Developers/How-Much/feature/auth/build/intermediates/incremental/debug/mergeDebugResources/stripped.dir
-br.com.brunocarvalhs.howmuch.feature.auth-debug-4 /Users/bruno/Developers/How-Much/feature/auth/build/intermediates/merged_res/debug/mergeDebugResources
-br.com.brunocarvalhs.howmuch.feature.auth-debug-5 /Users/bruno/Developers/How-Much/feature/auth/build/intermediates/packaged_res/debug/packageDebugResources
-br.com.brunocarvalhs.howmuch.feature.auth-debug-6 /Users/bruno/Developers/How-Much/feature/auth/src/debug/res
-br.com.brunocarvalhs.howmuch.feature.auth-main-7 /Users/bruno/Developers/How-Much/feature/auth/src/main/res

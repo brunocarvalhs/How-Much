@@ -1,1 +1,0 @@
--keep,allowobfuscation,allowshrinking class br.com.brunocarvalhs.howmuch.feature.auth.presentation.viewmodel.WelcomeViewModel

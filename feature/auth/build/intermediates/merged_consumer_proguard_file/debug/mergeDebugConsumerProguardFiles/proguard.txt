@@ -1,4 +1,0 @@
--keep,allowobfuscation,allowshrinking class br.com.brunocarvalhs.howmuch.feature.auth.presentation.viewmodel.LoginViewModel
--keep,allowobfuscation,allowshrinking class br.com.brunocarvalhs.howmuch.feature.auth.presentation.viewmodel.LoginViewModel
--keep,allowobfuscation,allowshrinking class br.com.brunocarvalhs.howmuch.feature.auth.presentation.viewmodel.WelcomeViewModel
--keep,allowobfuscation,allowshrinking class br.com.brunocarvalhs.howmuch.feature.auth.presentation.viewmodel.WelcomeViewModel
