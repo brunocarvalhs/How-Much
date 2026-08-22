@@ -1,7 +1,7 @@
 package br.com.brunocarvalhs.howmuch.feature.ai_agent;
 
 import br.com.brunocarvalhs.howmuch.core.ai.contract.AiAgentFactory;
-import br.com.brunocarvalhs.howmuch.core.ai.contract.AiSession;
+import br.com.brunocarvalhs.howmuch.feature.ai_agent.domain.entity.AiAgentSession;
 import br.com.brunocarvalhs.howmuch.feature.settings.app.domain.usecase.GetSettingsUseCase;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
@@ -31,11 +31,11 @@ public final class AiAgentOrchestrator_Factory implements Factory<AiAgentOrchest
 
   private final Provider<GetSettingsUseCase> getSettingsUseCaseProvider;
 
-  private final Provider<AiSession> sessionProvider;
+  private final Provider<AiAgentSession> sessionProvider;
 
   private AiAgentOrchestrator_Factory(Provider<AiAgentFactory> factoryProvider,
       Provider<GetSettingsUseCase> getSettingsUseCaseProvider,
-      Provider<AiSession> sessionProvider) {
+      Provider<AiAgentSession> sessionProvider) {
     this.factoryProvider = factoryProvider;
     this.getSettingsUseCaseProvider = getSettingsUseCaseProvider;
     this.sessionProvider = sessionProvider;
@@ -48,12 +48,12 @@ public final class AiAgentOrchestrator_Factory implements Factory<AiAgentOrchest
 
   public static AiAgentOrchestrator_Factory create(Provider<AiAgentFactory> factoryProvider,
       Provider<GetSettingsUseCase> getSettingsUseCaseProvider,
-      Provider<AiSession> sessionProvider) {
+      Provider<AiAgentSession> sessionProvider) {
     return new AiAgentOrchestrator_Factory(factoryProvider, getSettingsUseCaseProvider, sessionProvider);
   }
 
   public static AiAgentOrchestrator newInstance(AiAgentFactory factory,
-      GetSettingsUseCase getSettingsUseCase, AiSession session) {
+      GetSettingsUseCase getSettingsUseCase, AiAgentSession session) {
     return new AiAgentOrchestrator(factory, getSettingsUseCase, session);
   }
 }

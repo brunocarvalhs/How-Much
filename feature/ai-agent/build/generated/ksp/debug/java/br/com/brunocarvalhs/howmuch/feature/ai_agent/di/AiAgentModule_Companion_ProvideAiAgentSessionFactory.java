@@ -1,7 +1,7 @@
 package br.com.brunocarvalhs.howmuch.feature.ai_agent.di;
 
-import br.com.brunocarvalhs.howmuch.core.ai.contract.AiSession;
 import br.com.brunocarvalhs.howmuch.core.domain.services.AuthService;
+import br.com.brunocarvalhs.howmuch.feature.ai_agent.domain.entity.AiAgentSession;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
 import dagger.internal.Preconditions;
@@ -26,7 +26,7 @@ import javax.annotation.processing.Generated;
     "deprecation",
     "nullness:initialization.field.uninitialized"
 })
-public final class AiAgentModule_Companion_ProvideAiAgentSessionFactory implements Factory<AiSession> {
+public final class AiAgentModule_Companion_ProvideAiAgentSessionFactory implements Factory<AiAgentSession> {
   private final Provider<AuthService> authServiceProvider;
 
   private AiAgentModule_Companion_ProvideAiAgentSessionFactory(
@@ -35,7 +35,7 @@ public final class AiAgentModule_Companion_ProvideAiAgentSessionFactory implemen
   }
 
   @Override
-  public AiSession get() {
+  public AiAgentSession get() {
     return provideAiAgentSession(authServiceProvider.get());
   }
 
@@ -44,7 +44,7 @@ public final class AiAgentModule_Companion_ProvideAiAgentSessionFactory implemen
     return new AiAgentModule_Companion_ProvideAiAgentSessionFactory(authServiceProvider);
   }
 
-  public static AiSession provideAiAgentSession(AuthService authService) {
+  public static AiAgentSession provideAiAgentSession(AuthService authService) {
     return Preconditions.checkNotNullFromProvides(AiAgentModule.Companion.provideAiAgentSession(authService));
   }
 }
