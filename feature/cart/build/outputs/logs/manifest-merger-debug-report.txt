@@ -1,0 +1,16 @@
+-- Merging decision tree log ---
+manifest
+ADDED from /Users/bruno/Developers/How-Much/feature/cart/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest5350407683062568944.xml:2:13-83
+INJECTED from /Users/bruno/Developers/How-Much/feature/cart/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest5350407683062568944.xml:2:13-83
+	package
+		INJECTED from /Users/bruno/Developers/How-Much/feature/cart/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest5350407683062568944.xml
+	xmlns:android
+		ADDED from /Users/bruno/Developers/How-Much/feature/cart/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest5350407683062568944.xml:2:23-81
+uses-sdk
+INJECTED from /Users/bruno/Developers/How-Much/feature/cart/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest5350407683062568944.xml reason: use-sdk injection requested
+INJECTED from /Users/bruno/Developers/How-Much/feature/cart/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest5350407683062568944.xml
+INJECTED from /Users/bruno/Developers/How-Much/feature/cart/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest5350407683062568944.xml
+	android:targetSdkVersion
+		INJECTED from /Users/bruno/Developers/How-Much/feature/cart/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest5350407683062568944.xml
+	android:minSdkVersion
+		INJECTED from /Users/bruno/Developers/How-Much/feature/cart/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest5350407683062568944.xml
