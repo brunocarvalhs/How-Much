@@ -1,1 +1,0 @@
--keep,allowobfuscation,allowshrinking class br.com.brunocarvalhs.howmuch.feature.profile.presentation.viewmodel.ProfileViewModel

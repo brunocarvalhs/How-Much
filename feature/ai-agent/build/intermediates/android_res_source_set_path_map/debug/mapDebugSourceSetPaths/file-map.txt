@@ -1,8 +1,0 @@
-br.com.brunocarvalhs.howmuch.feature.ai_agent.ai-agent-pngs-0 /Users/bruno/Developers/How-Much/feature/ai-agent/build/generated/res/pngs/debug
-br.com.brunocarvalhs.howmuch.feature.ai_agent.ai-agent-updated_navigation_xml-1 /Users/bruno/Developers/How-Much/feature/ai-agent/build/generated/updated_navigation_xml/debug
-br.com.brunocarvalhs.howmuch.feature.ai_agent.ai-agent-mergeDebugResources-2 /Users/bruno/Developers/How-Much/feature/ai-agent/build/intermediates/incremental/debug/mergeDebugResources/merged.dir
-br.com.brunocarvalhs.howmuch.feature.ai_agent.ai-agent-mergeDebugResources-3 /Users/bruno/Developers/How-Much/feature/ai-agent/build/intermediates/incremental/debug/mergeDebugResources/stripped.dir
-br.com.brunocarvalhs.howmuch.feature.ai_agent.ai-agent-debug-4 /Users/bruno/Developers/How-Much/feature/ai-agent/build/intermediates/merged_res/debug/mergeDebugResources
-br.com.brunocarvalhs.howmuch.feature.ai_agent.ai-agent-debug-5 /Users/bruno/Developers/How-Much/feature/ai-agent/build/intermediates/packaged_res/debug/packageDebugResources
-br.com.brunocarvalhs.howmuch.feature.ai_agent.ai-agent-debug-6 /Users/bruno/Developers/How-Much/feature/ai-agent/src/debug/res
-br.com.brunocarvalhs.howmuch.feature.ai_agent.ai-agent-main-7 /Users/bruno/Developers/How-Much/feature/ai-agent/src/main/res
