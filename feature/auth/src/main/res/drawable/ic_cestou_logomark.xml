@@ -1,12 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Cestou brand mark: a basket silhouette with a "U"-shaped cutout, matching the
+  shape used in the app launcher icon (see app/src/main/res/drawable/ic_launcher_foreground.xml
+  and app/src/main/ic_launcher-logo.svg). The fill color here is intentionally a
+  placeholder — the drawable is meant to be tinted at render time (see WelcomeScreen)
+  so it follows MaterialTheme.colorScheme instead of a hardcoded brand color.
+-->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- Cestou mark: white basket with a "U"-shaped cutout, letting the
-         adaptive-icon background gradient show through the letter. -->
     <path
-        android:fillColor="#FFFFFF"
+        android:fillColor="#FF000000"
         android:fillType="evenOdd"
         android:pathData="
             M33.72,31.9 L74.28,31.9 Q81.56,31.9 79.7,38.94
