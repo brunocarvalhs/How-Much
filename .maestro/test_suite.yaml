@@ -1,10 +1,25 @@
 appId: br.com.brunocarvalhs.howmuch
 ---
+# NOTE: onboarding_flow.yaml is intentionally NOT part of this suite. It uses
+# clearState, which logs the device out of its Google Sign-In session — every flow
+# below this line assumes an already-authenticated session and would fail right
+# after it. Run onboarding_flow.yaml on its own, and log back in manually
+# afterwards before running this suite again.
+#
+# Order matters: create_list_flow creates the "value" list fixture that list_management_flow,
+# product_management_flow, cart_interactions_flow, and finish_purchase_flow all depend on.
+# list_management_flow must run before finish_purchase_flow locks the list (its own dropdown-menu
+# assertions don't care about status, but its header comment documents the assumption). cart_
+# interactions_flow must run before finish_purchase_flow, which locks the list (no more
+# purchasing/checking off items after that).
 - runFlow: flows/home_flow.yaml
 - runFlow: flows/create_list_flow.yaml
+- runFlow: flows/list_management_flow.yaml
 - runFlow: flows/product_management_flow.yaml
+- runFlow: flows/cart_interactions_flow.yaml
 - runFlow: flows/finish_purchase_flow.yaml
 - runFlow: flows/join_list_flow.yaml
 - runFlow: flows/settings_flow.yaml
+- runFlow: flows/settings_about_flow.yaml
 - runFlow: flows/account_data_flow.yaml
 - runFlow: flows/chat_flow.yaml

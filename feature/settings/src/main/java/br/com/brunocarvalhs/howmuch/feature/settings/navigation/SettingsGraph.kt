@@ -164,7 +164,8 @@ private fun NavGraphBuilder.legalSettings(navigator: Navigator) {
             content = stringResource(R.string.settings_terms_content),
             url = LegalUrls.TERMS_OF_USE_URL,
             onOpenUrl = viewModel.intent.onOpenUrl,
-            onBack = { navigator.goBack() }
+            onBack = { navigator.goBack() },
+            titleTestTag = "terms_of_use_screen_title"
         )
     }
 
@@ -175,7 +176,8 @@ private fun NavGraphBuilder.legalSettings(navigator: Navigator) {
             content = stringResource(R.string.settings_privacy_content),
             url = LegalUrls.PRIVACY_POLICY_URL,
             onOpenUrl = viewModel.intent.onOpenUrl,
-            onBack = { navigator.goBack() }
+            onBack = { navigator.goBack() },
+            titleTestTag = "privacy_policy_screen_title"
         )
     }
 

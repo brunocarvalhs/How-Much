@@ -1,20 +1,33 @@
 appId: br.com.brunocarvalhs.howmuch
 name: Chat Flow
 ---
-- launchApp:
-    clearState: true
+# Depends on: an already-authenticated session (see onboarding_flow.yaml / README).
+# Does NOT use clearState (see home_flow.yaml for why).
+#
+# Selectors are testTag-based (id:), not display text — see .maestro/README.md
+# "Language / locale". "Oi" is the literal message text we type and expect echoed back in the
+# chat log — that's genuinely user-entered content, not a localized resource, so plain text is
+# fine and locale-safe.
+- launchApp
 
-- tapOn: "IA Chat"
-- assertVisible: "AI Assistant"
-- assertVisible: "Message"
-- assertVisible: "Settings"
+- tapOn:
+    id: "nav_AiChat"
+- assertVisible:
+    id: "ai_chat_title"
+- assertVisible:
+    id: "ai_chat_message_field"
+- assertVisible:
+    id: "ai_chat_settings_button"
 
-- tapOn: "Message"
+- tapOn:
+    id: "ai_chat_message_field"
 - inputText: "Oi"
-- tapOn: "Send message"
+- tapOn:
+    id: "ai_chat_send_button"
 - waitForAnimationToEnd:
     timeout: 3000
 - assertVisible: "Oi"
 
-- tapOn: "Lists"
+- tapOn:
+    id: "nav_ShoppingList"
 - assertVisible: "Cestou"

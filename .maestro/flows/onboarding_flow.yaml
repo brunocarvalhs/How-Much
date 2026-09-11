@@ -1,0 +1,52 @@
+appId: br.com.brunocarvalhs.howmuch
+name: Onboarding Flow
+---
+# WARNING: clearState wipes the local session (see .maestro/README.md). This is the
+# ONLY flow in the suite allowed to use clearState, and it is intentionally excluded
+# from test_suite.yaml for that reason — running it logs the device out.
+# Do not run this against a device with an active session you care about without
+# warning whoever owns that session first.
+#
+# Only covers the pre-login Welcome screen. It deliberately never taps "Continuar com
+# Google": automating the Google account picker/OAuth consent is out of scope for
+# Maestro (real account, UI outside app control) — see README "Notes / known gaps".
+#
+# Text assertions below are safe as plain text regardless of device locale: WelcomeScreen.kt's
+# strings.xml (feature/auth) has no values-*/strings.xml override at all — only the single
+# default resource, already written in Portuguese — so every one of these renders identically no
+# matter what locale the device is set to. See .maestro/README.md "Language / locale" for the
+# general policy (testTag for anything that *does* vary by locale).
+- launchApp:
+    clearState: true
+
+- assertVisible: "Cestou"
+- assertVisible: "Suas compras, mais inteligentes"
+- assertVisible: "Crie listas dinâmicas, compartilhe em tempo real com quem quiser e use nossa inteligência artificial para economizar."
+- assertVisible: "Continuar com Google"
+# REGRESSION found 2026-09-10 re-running this flow after rebuilding for the testTag work above:
+# the single-sentence assert that used to pass here failed against a fresh build. `fix/wire-legal-urls`
+# (PR #83, already merged into develop before this branch pulled it in) split
+# CustomMethodPickerTerms's one Text into six separate Text nodes so "Termos de Uso" / "Política
+# de Privacidade" can be individually clickable links (CustomMethodPicker.kt) — there is no
+# longer a single node containing the full sentence for Maestro to match. Not an app bug (the
+# link-per-term UI is intentional), just this flow drifting behind it; asserting the actual
+# fragments instead.
+#
+# SECOND REGRESSION found 2026-09-11 actually running this flow on device (not assumed from the
+# previous session's notes): the previous fix above still failed —
+# `assertVisible: "Ao continuar, você concorda com nossos "` (with a trailing space) never
+# matched. Confirmed from this run's screen-hierarchy JSON dump: the rendered node's text is
+# `"Ao continuar, você concorda com nossos"`, no trailing space. `welcome_terms_prefix`
+# (feature/auth strings.xml) is declared with an unquoted trailing space
+# (`"...nossos "`), but Android's resource compiler collapses/trims leading and trailing
+# whitespace on unquoted string resources — the space in the XML source never survives into the
+# compiled string. Also switched the two link assertions to their `testTag`s
+# (`welcome_terms_of_use_link` / `welcome_privacy_policy_link`, already present in
+# CustomMethodPicker.kt) instead of plain text, per the standing testTag-over-text convention —
+# the prefix fragment has no testTag, so it stays plain text (locale-safe: no values-*/strings.xml
+# override exists for it, see header above).
+- assertVisible: "Ao continuar, você concorda com nossos"
+- assertVisible:
+    id: "welcome_terms_of_use_link"
+- assertVisible:
+    id: "welcome_privacy_policy_link"

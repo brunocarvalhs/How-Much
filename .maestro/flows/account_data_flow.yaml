@@ -1,34 +1,68 @@
 appId: br.com.brunocarvalhs.howmuch
 name: Account & Data Flow
 ---
-- launchApp:
-    clearState: true
+# Depends on: an already-authenticated session (see onboarding_flow.yaml / README).
+# Does NOT use clearState (see home_flow.yaml for why).
+#
+# Selectors are testTag-based (id:), not display text — see .maestro/README.md
+# "Language / locale".
+#
+# NOTE (found 2026-09-09 while adding testTag coverage): the previous version of this flow
+# tapped a "Data"/"Dados" text assert to reach the Data screen, but that text is the *section
+# header* in SettingsScreen.kt (a plain Text, not wrapped in anything clickable) — it was never
+# actually the tap target. The real, only tappable route to DataSettings is the section's single
+# item, titled "Apagar todos os dados" (R.string.settings_item_delete_all), tagged
+# settings_item_DataSettings below. Fixed to tap the real element.
+- launchApp
 
-- tapOn: "Profile"
-- tapOn: "Theme, Currency and Language"
-- assertVisible: "Data"
-- tapOn: "Data"
+- tapOn:
+    id: "nav_Profile"
+- tapOn:
+    id: "profile_menu_theme"
+- assertVisible:
+    id: "settings_section_data"
+- tapOn:
+    id: "settings_item_DataSettings"
 
-- assertVisible: "Clear cache"
-- assertVisible: "Delete all data"
-- assertVisible: "Delete Account"
+- assertVisible:
+    id: "data_settings_screen_title"
+- assertVisible:
+    id: "data_settings_clear_cache"
+- assertVisible:
+    id: "data_settings_delete_all"
+- assertVisible:
+    id: "data_settings_delete_account"
 
 # Delete-all-data confirmation sheet: verify it appears and Cancel dismisses
 # it without touching data. Never confirm this flow — it would wipe fixtures
 # the other regression flows depend on.
-- tapOn: "Delete all data"
-- assertVisible: "Delete all data?"
-- assertVisible: "Yes, delete everything"
-- tapOn: "Cancel"
-- assertNotVisible: "Delete all data?"
+- tapOn:
+    id: "data_settings_delete_all"
+- assertVisible:
+    id: "delete_all_confirmation_title"
+- assertVisible:
+    id: "delete_all_confirm_button"
+- tapOn:
+    id: "delete_all_cancel_button"
+- assertNotVisible:
+    id: "delete_all_confirmation_title"
 
 # Delete-account confirmation sheet: same pattern — assert it opens and can
 # be cancelled. Never confirm: it would permanently delete the test account.
-- tapOn: "Delete Account"
-- assertVisible: "Delete account?"
-- assertVisible: "Yes, delete my account"
-- tapOn: "Cancel"
-- assertNotVisible: "Delete account?"
+- tapOn:
+    id: "data_settings_delete_account"
+- assertVisible:
+    id: "delete_account_confirmation_title"
+- assertVisible:
+    id: "delete_account_confirm_button"
+- tapOn:
+    id: "delete_account_cancel_button"
+- assertNotVisible:
+    id: "delete_account_confirmation_title"
 
 - back
-- assertVisible: "Sign Out"
+- assertVisible:
+    id: "settings_screen_title"
+- back
+- assertVisible:
+    id: "profile_menu_sign_out"
