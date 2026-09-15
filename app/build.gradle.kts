@@ -10,6 +10,7 @@ plugins {
     alias(libs.plugins.firebase.perf)
     alias(libs.plugins.hilt)
     alias(libs.plugins.secrets)
+    alias(libs.plugins.baselineprofile)
 }
 
 // CI decodes RELEASE_KEYSTORE_BASE64 into this path (.github/pipeline-config.yaml
@@ -101,6 +102,8 @@ secrets {
 }
 
 dependencies {
+    baselineProfile(project(":baselineprofile"))
+    implementation(libs.androidx.profileinstaller)
     implementation(project(":core:common"))
     implementation(project(":core:domain"))
     implementation(project(":core:ui"))
