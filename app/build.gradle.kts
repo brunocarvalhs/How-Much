@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -10,9 +12,31 @@ plugins {
     alias(libs.plugins.secrets)
 }
 
+// CI decodes RELEASE_KEYSTORE_BASE64 into this path (.github/pipeline-config.yaml
+// paths.keystore); locally, a gitignored key.properties fills the same values so a
+// release build works without exporting env vars.
+val releaseKeystoreProperties = Properties().apply {
+    val propertiesFile = rootProject.file("key.properties")
+    if (propertiesFile.exists()) {
+        propertiesFile.inputStream().use { load(it) }
+    }
+}
+
+fun releaseSigningProperty(key: String): String? =
+    System.getenv(key) ?: releaseKeystoreProperties.getProperty(key)
+
 android {
     namespace = "br.com.brunocarvalhs.howmuch"
     compileSdk = libs.versions.compileSdk.get().toInt()
+
+    signingConfigs {
+        create("release") {
+            storeFile = rootProject.file("release.keystore")
+            storePassword = releaseSigningProperty("KEYSTORE_PASSWORD")
+            keyAlias = releaseSigningProperty("KEYSTORE_ALIAS")
+            keyPassword = releaseSigningProperty("KEY_PASSWORD")
+        }
+    }
 
     defaultConfig {
         applicationId = "br.com.brunocarvalhs.howmuch"
@@ -30,6 +54,7 @@ android {
             versionNameSuffix = "-debug"
         }
         release {
+            signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
