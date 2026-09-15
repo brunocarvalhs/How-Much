@@ -21,7 +21,10 @@ git:
 paths:
   gradle_file: "app/build.gradle.kts"
   changelog: "CHANGELOG.md"
-  keystore: "app/release.keystore"
+  # Root-level, not app/ - the wear target signs with the same file (see
+  # wear/build.gradle.kts), and *.keystore is gitignored repo-wide so this
+  # never gets committed.
+  keystore: "release.keystore"
   apk_debug: "app/build/outputs/apk/debug/*.apk"
   apk_release: "app/build/outputs/apk/release/*.apk"
   aab_release: "app/build/outputs/bundle/release/*.aab"
@@ -247,6 +250,29 @@ release:
   # (which has no section of its own - it's the "prepare a release" half of
   # this same release process, just running pre-merge on develop instead of
   # post-merge on master).
+  # Regenerates the Baseline Profile (app/src/main/baseline-prof.txt) on a
+  # connected emulator right before bundling, so the AAB shipped to Play
+  # always embeds a profile that matches HEAD instead of a stale committed
+  # one. Uses the same emulator-runner approach as instrumented_tests
+  # (tests.yml) since BaselineProfileRule.collect() needs a connected
+  # device, just not a physical one - profile generation traces code paths,
+  # it doesn't measure timing. Timing verification (StartupBenchmarks, in
+  # the baselineprofile module) does need a physical device and is not run
+  # in CI.
+  baseline_profile:
+    enabled: true
+    api_level: 34
+    target: "google_apis"
+    arch: "x86_64"
+    command: "./gradlew :app:generateReleaseBaselineProfile"
+    # Overrides build.default_timeout_minutes for the whole `build` job (not just
+    # this step) - same reasoning as instrumented_tests.timeout_minutes: emulator
+    # boot is the slowest, most hang-prone part, and this job still has
+    # bundleRelease to run afterwards on top of it.
+    timeout_minutes: 30
+    step_names:
+      enable_kvm: "🖥️ Enable KVM"
+      generate: "🚀 Generate Baseline Profile"
   step_names:
     build_aab: "\U0001F3D7️ Build AAB"
     upload_aab: "\U0001F4E4 Upload AAB Artifact"

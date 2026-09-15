@@ -24,6 +24,7 @@ The following secrets must be configured in your GitHub repository (`Settings > 
 | :--- | :--- |
 | `TOKEN` | GitHub Personal Access Token with `repo` and `workflow` scopes. |
 | `GOOGLE_SERVICE_JSON` | `google-services.json` file content encoded in Base64. |
+| `RELEASE_KEYSTORE_BASE64` | Android release/upload keystore file (`.keystore`) encoded in Base64. Shared by `:app` and `:wear`. |
 | `KEYSTORE_PASSWORD` | Password for the Android release keystore. |
 | `KEYSTORE_ALIAS` | Alias for the signing key in the keystore. |
 | `KEY_PASSWORD` | Password for the specific signing key. |

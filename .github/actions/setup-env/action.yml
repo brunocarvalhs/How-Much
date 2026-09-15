@@ -16,6 +16,9 @@ inputs:
   google-services-json:
     description: 'Base64 encoded google-services.json'
     required: false
+  release-keystore-base64:
+    description: 'Base64 encoded release upload keystore'
+    required: false
 
 runs:
   using: "composite"
@@ -68,6 +71,14 @@ runs:
           for MODULE_PATH in $(yq '.build.targets[] | select(.google_services_required == true) | .module' .github/pipeline-config.yaml | tr -d '"' | sed 's|^:||'); do
             echo "${{ inputs.google-services-json }}" | base64 --decode > "$MODULE_PATH/google-services.json"
           done
+        fi
+
+    - name: Create release keystore
+      shell: bash
+      run: |
+        if [ "${{ inputs.release-keystore-base64 }}" != "" ]; then
+          KEYSTORE_PATH=$(yq '.paths.keystore' .github/pipeline-config.yaml)
+          echo "${{ inputs.release-keystore-base64 }}" | base64 --decode > "$KEYSTORE_PATH"
         fi
 
     - name: Cache Gradle

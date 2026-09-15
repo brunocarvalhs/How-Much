@@ -33,6 +33,14 @@ jobs:
       play_status: ${{ steps.config.outputs.play_status }}
       play_environment_name: ${{ steps.config.outputs.play_environment_name }}
       versioning_enabled: ${{ steps.config.outputs.versioning_enabled }}
+      baseline_profile_enabled: ${{ steps.config.outputs.baseline_profile_enabled }}
+      baseline_profile_api_level: ${{ steps.config.outputs.baseline_profile_api_level }}
+      baseline_profile_target: ${{ steps.config.outputs.baseline_profile_target }}
+      baseline_profile_arch: ${{ steps.config.outputs.baseline_profile_arch }}
+      baseline_profile_command: ${{ steps.config.outputs.baseline_profile_command }}
+      baseline_profile_timeout: ${{ steps.config.outputs.baseline_profile_timeout }}
+      step_baseline_profile_kvm: ${{ steps.config.outputs.step_baseline_profile_kvm }}
+      step_baseline_profile_generate: ${{ steps.config.outputs.step_baseline_profile_generate }}
       step_checkout: ${{ steps.config.outputs.step_checkout }}
       step_setup_env: ${{ steps.config.outputs.step_setup_env }}
       step_run_check: ${{ steps.config.outputs.step_run_check }}
@@ -73,6 +81,14 @@ jobs:
           echo "checks_stage_2=$(yq -o=json '[.checks[] | select(.enabled) | select((.stage // 1) == 2)]' .github/pipeline-config.yaml | tr -d '\n')" >> $GITHUB_OUTPUT
           echo "release_enabled=$(yq '.release.enabled' .github/pipeline-config.yaml)" >> $GITHUB_OUTPUT
           echo "versioning_enabled=$(yq '.release.versioning.enabled' .github/pipeline-config.yaml)" >> $GITHUB_OUTPUT
+          echo "baseline_profile_enabled=$(yq '.release.baseline_profile.enabled' .github/pipeline-config.yaml)" >> $GITHUB_OUTPUT
+          echo "baseline_profile_api_level=$(yq '.release.baseline_profile.api_level' .github/pipeline-config.yaml)" >> $GITHUB_OUTPUT
+          echo "baseline_profile_target=$(yq '.release.baseline_profile.target' .github/pipeline-config.yaml)" >> $GITHUB_OUTPUT
+          echo "baseline_profile_arch=$(yq '.release.baseline_profile.arch' .github/pipeline-config.yaml)" >> $GITHUB_OUTPUT
+          echo "baseline_profile_command=$(yq '.release.baseline_profile.command' .github/pipeline-config.yaml)" >> $GITHUB_OUTPUT
+          echo "baseline_profile_timeout=$(yq '.release.baseline_profile.timeout_minutes' .github/pipeline-config.yaml)" >> $GITHUB_OUTPUT
+          echo "step_baseline_profile_kvm=$(yq '.release.baseline_profile.step_names.enable_kvm' .github/pipeline-config.yaml)" >> $GITHUB_OUTPUT
+          echo "step_baseline_profile_generate=$(yq '.release.baseline_profile.step_names.generate' .github/pipeline-config.yaml)" >> $GITHUB_OUTPUT
           echo "github_draft=$(yq '.release.github_release.draft' .github/pipeline-config.yaml)" >> $GITHUB_OUTPUT
           echo "github_prerelease=$(yq '.release.github_release.prerelease' .github/pipeline-config.yaml)" >> $GITHUB_OUTPUT
           echo "play_track=$(yq '.release.google_play.track' .github/pipeline-config.yaml)" >> $GITHUB_OUTPUT
@@ -161,7 +177,7 @@ jobs:
       (needs.checks_stage_1.result == 'success' || needs.checks_stage_1.result == 'skipped') &&
       (needs.checks_stage_2.result == 'success' || needs.checks_stage_2.result == 'skipped')
     runs-on: ubuntu-24.04
-    timeout-minutes: ${{ fromJson(needs.prepare.outputs.default_timeout) }}
+    timeout-minutes: ${{ fromJson(needs.prepare.outputs.baseline_profile_timeout) }}
     name: 📦 Build Bundle (AAB)
     steps:
       - name: ${{ needs.prepare.outputs.step_checkout }}
@@ -174,6 +190,34 @@ jobs:
           java-distribution: ${{ needs.prepare.outputs.java_distribution }}
           dotenv: ${{ secrets.DOTENV || vars.DOTENV }}
           google-services-json: ${{ secrets.GOOGLE_SERVICE_JSON }}
+          release-keystore-base64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
+
+      - name: ${{ needs.prepare.outputs.step_baseline_profile_kvm }}
+        if: needs.prepare.outputs.baseline_profile_enabled == 'true'
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      # Regenerates app/src/main/baseline-prof.txt on an emulator, then leaves it
+      # on disk for the next step - bundleRelease picks it up automatically since
+      # :app applies the androidx.baselineprofile consumer plugin (app/build.gradle.kts).
+      - name: ${{ needs.prepare.outputs.step_baseline_profile_generate }}
+        if: needs.prepare.outputs.baseline_profile_enabled == 'true'
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ needs.prepare.outputs.baseline_profile_api_level }}
+          target: ${{ needs.prepare.outputs.baseline_profile_target }}
+          arch: ${{ needs.prepare.outputs.baseline_profile_arch }}
+          disable-animations: true
+          script: |
+            chmod +x gradlew
+            ${{ needs.prepare.outputs.baseline_profile_command }}
+        env:
+          GRADLE_OPTS: ${{ needs.prepare.outputs.gradle_opts }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
       - name: ${{ needs.prepare.outputs.step_build_aab }}
         run: |

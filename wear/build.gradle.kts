@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.google.devtools.ksp)
@@ -7,10 +9,32 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 }
 
+// Shares the phone app's upload keystore (same rootProject.file("release.keystore"),
+// same CI-decoded RELEASE_KEYSTORE_BASE64 / key.properties fallback) - the wear app
+// pairs under the phone's applicationId, so both must be signed with the same key.
+val releaseKeystoreProperties = Properties().apply {
+    val propertiesFile = rootProject.file("key.properties")
+    if (propertiesFile.exists()) {
+        propertiesFile.inputStream().use { load(it) }
+    }
+}
+
+fun releaseSigningProperty(key: String): String? =
+    System.getenv(key) ?: releaseKeystoreProperties.getProperty(key)
+
 android {
     namespace = "br.com.brunocarvalhs.howmuch.wear"
     compileSdk {
         version = release(37)
+    }
+
+    signingConfigs {
+        create("release") {
+            storeFile = rootProject.file("release.keystore")
+            storePassword = releaseSigningProperty("KEYSTORE_PASSWORD")
+            keyAlias = releaseSigningProperty("KEYSTORE_ALIAS")
+            keyPassword = releaseSigningProperty("KEY_PASSWORD")
+        }
     }
 
     defaultConfig {
@@ -23,6 +47,7 @@ android {
 
     buildTypes {
         release {
+            signingConfig = signingConfigs.getByName("release")
             optimization {
                 enable = false
             }
